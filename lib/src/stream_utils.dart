@@ -19,7 +19,7 @@ class CustomSink<S> {
   void onError(Object error, StackTrace stack) =>
       _controller.sink.addError(error, stack);
 
-  void onDone() => _controller.sink.close();
+  void onDone() => _controller.close();
 
   void onListen() {
     if (startValue == null) return;
@@ -27,28 +27,37 @@ class CustomSink<S> {
   }
 
   void setOnCloseCallback(Function() onClose) {
-    _controller.onCancel = onClose;
+    _controller.onCancel = () {
+      onClose();
+      onDone();
+    };
   }
 }
 
 class CustomStreamTransformer<S> extends StreamTransformerBase<S, S> {
   final CustomSink<S> sink;
 
-  CustomStreamTransformer({required this.sink});
+  /// Used for decreasing listeners count
+  final Function()? onClose;
+
+  /// Used for increasing listeners count
+  final Function()? onListen;
+
+  CustomStreamTransformer({required this.sink, this.onClose, this.onListen});
 
   @override
   Stream<S> bind(Stream<S> stream) {
     StreamSubscription<S>? sub;
 
     sink.onListen();
+    if (onListen != null) onListen!();
 
-    sub = stream.listen(
-      sink.onData,
-      onError: sink.onError,
-      onDone: sink.onDone,
-    );
+    sub = stream.listen(sink.onData, onError: sink.onError, onDone: () {
+      sink.onDone();
+    });
 
     sink.setOnCloseCallback(() {
+      if (onClose != null) onClose!();
       sub?.cancel();
     });
 

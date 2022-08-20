@@ -1,41 +1,36 @@
 import 'dart:async';
 
-import 'package:remoter/src/stream_utils.dart';
-
 /// Cache of all queries
 class RemoterCache {
   final Map<String, dynamic> _storage = {};
   final Map<String, Timer> _timers = {};
-  final StreamController<CacheEvent> _cacheStream =
-      StreamController.broadcast();
-
-  Stream<CacheEvent<T>> getStream<T>(String key) {
-    final stream = _cacheStream.stream
-        .cast<CacheEvent<T>>()
-        .where((event) => event.key == key)
-        .transform(
-          CustomStreamTransformer<CacheEvent<T>>(
-            sink: CustomSink<CacheEvent<T>>(
-              _storage[key] != null
-                  ? CacheEvent(data: _storage[key], key: key)
-                  : null,
-            ),
-          ),
-        );
-
-    return stream;
-  }
 
   /// Set cache in memory and start timer to dispose it
-  void setEntry<T>(String key, T data, [CacheOptions? options]) {
-    options ??= CacheOptions();
+  void setEntry<T>(
+    String key,
+    T data,
+  ) {
     _storage[key] = data;
+  }
+
+  /// Start timer to delete entry with [key]
+  /// When all listeners are gone
+  void startTimer(key, [CacheOptions? options]) {
+    options ??= CacheOptions();
     final timer = _setTimer(options.cacheTime, () {
       deleteEntry(key);
-      _deleteTimer(key);
+      deleteTimer(key);
     });
     _timers[key] = timer;
-    _cacheStream.sink.add(CacheEvent<T>(data: data, key: key));
+  }
+
+  /// Stop timer to delete entry with [key]
+  /// When new listener is created
+  void deleteTimer(String key) {
+    final timer = _timers[key];
+    if (timer == null) return;
+    if (timer.isActive == true) timer.cancel();
+    _timers.remove(key);
   }
 
   /// Delete cache entry with [key]
@@ -51,18 +46,12 @@ class RemoterCache {
 
   /// Cancel all timers and streams
   void close() {
-    _cacheStream.close();
     _timers.forEach((key, _) {
-      _deleteTimer(key);
+      deleteTimer(key);
     });
   }
 
   /// Cancel [Timer] and deletes from memory
-  void _deleteTimer(String key) {
-    final timer = _timers[key];
-    if (timer?.isActive == true) timer?.cancel();
-    _timers.remove(key);
-  }
 
   Timer _setTimer(int duration, Function() onCallback) {
     return Timer(Duration(milliseconds: duration), onCallback);
@@ -77,14 +66,17 @@ class CacheEvent<T> {
 
   @override
   String toString() {
-    return "key: $key, data: $data";
+    return "Cache Event -> key: $key, data: $data";
   }
 }
 
 /// Top level options for caching strategy
 class CacheOptions {
   int cacheTime;
-  CacheOptions({
-    this.cacheTime = 5 * 1000 * 60,
-  });
+  CacheOptions({int? cacheTime}) : cacheTime = cacheTime ?? 5 * 1000 * 60;
+
+  @override
+  String toString() {
+    return "Cache Options -> cacheTime: $cacheTime";
+  }
 }
