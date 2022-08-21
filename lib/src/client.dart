@@ -4,7 +4,6 @@ import 'cache.dart';
 import 'stream_utils.dart';
 
 class RemoterClient {
-  final Map<String, RemoterData> remoterData = {};
   final Map<String, int> listeners = {};
   final RemoterClientOptions options;
   final RemoterCache _cache;
@@ -42,18 +41,15 @@ class RemoterClient {
     return stream;
   }
 
-  // TODO implement fetching from cache
-  fetch<T>(String key, Future<T> Function() fn) {
-    _dispatch(
-      key,
-      RemoterData<T>(key: key, data: null, status: RemoterStatus.fetching),
-    );
-    fn().then((data) {
+  Future<void> fetch<T>(String key, Future<T> Function() fn) async {
+    _fetchFromCache(key);
+    try {
+      final data = await fn();
       _dispatch(
         key,
         RemoterData<T>(key: key, data: data, status: RemoterStatus.isSuccess),
       );
-    }).onError((error, stack) {
+    } catch (error) {
       _dispatch(
         key,
         RemoterData<T>(
@@ -63,15 +59,18 @@ class RemoterClient {
           error: error,
         ),
       );
-    });
+    }
   }
 
   void setData<T>(String key, T data) {
-    _dispatch(key, RemoterData(key: key, data: data));
+    _dispatch(
+      key,
+      RemoterData<T>(key: key, data: data, status: RemoterStatus.isSuccess),
+    );
   }
 
   RemoterData<T>? getData<T>(String key) {
-    return remoterData[key] as RemoterData<T>?;
+    return _cache.getData(key) as RemoterData<T>?;
   }
 
   void increaseListenersCount(String key) {
@@ -84,7 +83,6 @@ class RemoterClient {
   }
 
   void decreaseListenersCount(String key) {
-    /// TODO maybe throw error
     if (listeners[key] == null) return;
     if (listeners[key] == 1) {
       listeners.remove(key);
@@ -94,11 +92,29 @@ class RemoterClient {
     }
   }
 
+  void _fetchFromCache<T>(String key) {
+    final initialData = getData<T>(key);
+    // Fetching for first
+    if (initialData == null) {
+      _dispatch(
+        key,
+        RemoterData<T>(key: key, data: null, status: RemoterStatus.fetching),
+      );
+    } else {
+      _dispatch(
+        key,
+        RemoterData<T>(
+          key: initialData.key,
+          data: initialData.data,
+          status: RemoterStatus.fetching,
+        ),
+      );
+    }
+  }
+
   void _dispatch<T>(String key, RemoterData<T> data) {
-    remoterData[key] = data;
     _cacheStream.add(data);
-    if (data.data == null) return;
-    _cache.setEntry<T>(key, data.data as T);
+    _cache.setEntry<RemoterData<T>>(key, data);
   }
 }
 
@@ -113,10 +129,11 @@ class RemoterData<T> {
     required this.data,
     this.error,
     this.status = RemoterStatus.idle,
-  }) : updatedAt = DateTime.now();
+    DateTime? updatedAt,
+  }) : updatedAt = updatedAt ?? DateTime.now();
   @override
   String toString() {
-    return "RemoteData -> key: $key, value: $data, status: $status, error: $error}";
+    return "RemoteData -> key: $key, value: $data, status: $status, error: $error, updatedAt: $updatedAt";
   }
 }
 

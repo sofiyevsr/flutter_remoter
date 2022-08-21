@@ -5,7 +5,7 @@ class RemoterCache {
   final Map<String, dynamic> _storage = {};
   final Map<String, Timer> _timers = {};
 
-  /// Set cache in memory and start timer to dispose it
+  /// Set cache in memory
   void setEntry<T>(
     String key,
     T data,
@@ -14,7 +14,7 @@ class RemoterCache {
   }
 
   /// Start timer to delete entry with [key]
-  /// When all listeners are gone
+  /// Used when all listeners are gone
   void startTimer(key, [CacheOptions? options]) {
     options ??= CacheOptions();
     final timer = _setTimer(options.cacheTime, () {
@@ -25,7 +25,7 @@ class RemoterCache {
   }
 
   /// Stop timer to delete entry with [key]
-  /// When new listener is created
+  /// Used when first listener is created
   void deleteTimer(String key) {
     final timer = _timers[key];
     if (timer == null) return;
@@ -52,7 +52,6 @@ class RemoterCache {
   }
 
   /// Cancel [Timer] and deletes from memory
-
   Timer _setTimer(int duration, Function() onCallback) {
     return Timer(Duration(milliseconds: duration), onCallback);
   }

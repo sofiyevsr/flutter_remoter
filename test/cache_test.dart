@@ -21,24 +21,26 @@ void main() {
         cache.setEntry<String>(
           "cache",
           "str",
-          CacheOptions(cacheTime: 5000),
         );
+        cache.startTimer("cache", CacheOptions(cacheTime: 5000));
         async.elapse(const Duration(milliseconds: 5000));
         expect(cache.getData("cache"), null);
       });
     });
-
-    test("stream receives latest value", () {
+    test("entry not removed after timer stopped", () {
       final cache = RemoterCache();
-      cache.getStream<String>("cache").listen(
-        expectAsync1<void, CacheEvent<String>>(
-          (value) {
-            expect(value.data, "str");
-          },
-        ),
-      );
-      cache.setEntry<String>("cache", "str");
-    });
 
+      fakeAsync((async) {
+        cache.setEntry<String>(
+          "cache",
+          "str",
+        );
+        cache.startTimer("cache", CacheOptions(cacheTime: 5000));
+        async.elapse(const Duration(milliseconds: 1000));
+        cache.deleteTimer("cache");
+        async.elapse(const Duration(milliseconds: 5000));
+        expect(cache.getData("cache"), isNotNull);
+      });
+    });
   });
 }
