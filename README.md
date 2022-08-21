@@ -12,8 +12,9 @@ and the Flutter guide for
 -->
 
 ToDo List
-- [] Make sure no stream leaks
-- [] Fix Generic Types
+- [ ] Make sure no stream leaks
+- [ ] Fix Generic Types
+- [ ] Implement stale time
 
 TODO: Put a short description of the package here that helps potential users
 know whether this package might be useful for them.
