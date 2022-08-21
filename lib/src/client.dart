@@ -42,19 +42,24 @@ class RemoterClient {
   }
 
   Future<void> fetch<T>(String key, Future<T> Function() fn) async {
-    _fetchFromCache(key);
+    final dataFromCache = _fetchFromCache<T>(key);
     try {
       final data = await fn();
+      // Will behave as refetch if data exists in cache
       _dispatch(
         key,
-        RemoterData<T>(key: key, data: data, status: RemoterStatus.isSuccess),
+        RemoterData<T>(
+          key: key,
+          data: data,
+          status: RemoterStatus.isSuccess,
+        ),
       );
     } catch (error) {
       _dispatch(
         key,
         RemoterData<T>(
           key: key,
-          data: null,
+          data: dataFromCache.data,
           status: RemoterStatus.isError,
           error: error,
         ),
@@ -92,24 +97,32 @@ class RemoterClient {
     }
   }
 
-  void _fetchFromCache<T>(String key) {
+  /// Returns [hasInitialData] boolean
+  RemoterData<T> _fetchFromCache<T>(String key) {
     final initialData = getData<T>(key);
-    // Fetching for first
     if (initialData == null) {
+      final data = RemoterData<T>(
+        key: key,
+        data: null,
+        status: RemoterStatus.fetching,
+      );
       _dispatch(
         key,
-        RemoterData<T>(key: key, data: null, status: RemoterStatus.fetching),
+        data,
       );
-    } else {
-      _dispatch(
-        key,
-        RemoterData<T>(
-          key: initialData.key,
-          data: initialData.data,
-          status: RemoterStatus.fetching,
-        ),
-      );
+      return data;
     }
+    final data = RemoterData<T>(
+      key: key,
+      data: initialData.data,
+      status: RemoterStatus.isSuccess,
+      isRefetching: true,
+    );
+    _dispatch(
+      key,
+      data,
+    );
+    return data;
   }
 
   void _dispatch<T>(String key, RemoterData<T> data) {
@@ -122,12 +135,14 @@ class RemoterData<T> {
   String key;
   RemoterStatus status;
   DateTime updatedAt;
+  bool isRefetching;
   T? data;
   Object? error;
   RemoterData({
     required this.key,
     required this.data,
     this.error,
+    this.isRefetching = false,
     this.status = RemoterStatus.idle,
     DateTime? updatedAt,
   }) : updatedAt = updatedAt ?? DateTime.now();

@@ -11,9 +11,9 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-Short Term TODOS:
-- Make sure no stream leaks
-- Fix Generic Types
+ToDo List
+- [] Make sure no stream leaks
+- [] Fix Generic Types
 
 TODO: Put a short description of the package here that helps potential users
 know whether this package might be useful for them.
