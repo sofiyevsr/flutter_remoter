@@ -11,13 +11,19 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
+Done List
+- [x] Flutter widget and global client provider
+- [x] Fetch on startup
+- [x] Cache is collected after cache time if there is no listener
+- [x] Global options
+
 ToDo List
 - [ ] Make sure no stream leaks
 - [ ] Fix Generic Types
 - [ ] Implement stale time
+- [ ] More client options
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Remoter aims to synchronize, revalidate and cache remote data
 
 ## Features
 
