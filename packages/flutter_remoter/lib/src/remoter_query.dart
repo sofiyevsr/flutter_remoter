@@ -6,7 +6,7 @@ import 'package:remoter/remoter.dart';
 
 class RemoterQuery<T> extends StatefulWidget {
   final String remoterKey;
-  final Future<dynamic> Function() fn;
+  final Future<T> Function() fn;
   final Widget Function(BuildContext, RemoterData<T>?) builder;
   const RemoterQuery({
     super.key,
@@ -23,11 +23,10 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
   StreamSubscription<RemoterData<T>>? subscription;
   RemoterData<T>? data;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (subscription != null) return;
+  void _startStream() {
+    subscription?.cancel();
     final provider = RemoterProvider.of(context);
+    provider.client.fetch<T>(widget.remoterKey, widget.fn);
     subscription = provider.client.getStream<T>(widget.remoterKey).listen(
       (event) {
         setState(() {
@@ -38,18 +37,20 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (subscription != null) return;
+    _startStream();
+  }
+
+  @override
   void didUpdateWidget(RemoterQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.remoterKey == widget.remoterKey) return;
-    final provider = RemoterProvider.of(context);
-    subscription?.cancel();
-    subscription = provider.client.getStream<T>(widget.remoterKey).listen(
-      (event) {
-        setState(() {
-          data = event;
-        });
-      },
-    );
+    setState(() {
+      data = null;
+    });
+    _startStream();
   }
 
   @override

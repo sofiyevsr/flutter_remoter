@@ -15,7 +15,7 @@ class RemoterClient {
         _cache = RemoterCache();
 
   Stream<RemoterData<T>> getStream<T>(String key) {
-    final cachedValue = _cache.getData<T>(key);
+    final cachedValue = _cache.getData<RemoterData<T>>(key);
     final stream = _cacheStream.stream
         .cast<RemoterData<T>>()
         .where((event) => event.key == key)
@@ -31,7 +31,7 @@ class RemoterClient {
               cachedValue != null
                   ? RemoterData<T>(
                       key: key,
-                      data: cachedValue,
+                      data: cachedValue.data,
                       status: RemoterStatus.isSuccess,
                     )
                   : null,
@@ -43,6 +43,7 @@ class RemoterClient {
 
   Future<void> fetch<T>(String key, Future<T> Function() fn) async {
     final dataFromCache = _fetchFromCache<T>(key);
+    if (dataFromCache.status == RemoterStatus.fetching) return;
     try {
       final data = await fn();
       // Will behave as refetch if data exists in cache
@@ -75,7 +76,7 @@ class RemoterClient {
   }
 
   RemoterData<T>? getData<T>(String key) {
-    return _cache.getData(key) as RemoterData<T>?;
+    return _cache.getData<RemoterData<T>>(key);
   }
 
   void increaseListenersCount(String key) {
