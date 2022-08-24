@@ -16,12 +16,15 @@ Done List
 - [x] Fetch on startup
 - [x] Cache is collected after cache time if there is no listener
 - [x] Global options
+- [x] Add State listener on Query widget
 
 ToDo List
+- [ ] Refactor fetch function
 - [ ] Make sure no stream leaks
 - [ ] Fix Generic Types
 - [ ] Implement stale time
 - [ ] More client options
+- [ ] Single Query parameters
 
 Remoter aims to synchronize, revalidate and cache remote data
 
