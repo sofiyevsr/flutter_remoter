@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'cache.dart';
 import 'stream_utils.dart';
 
@@ -43,7 +44,6 @@ class RemoterClient {
 
   Future<void> fetch<T>(String key, Future<T> Function() fn) async {
     final dataFromCache = _fetchFromCache<T>(key);
-    if (dataFromCache.status == RemoterStatus.fetching) return;
     try {
       final data = await fn();
       // Will behave as refetch if data exists in cache
@@ -92,10 +92,18 @@ class RemoterClient {
     if (listeners[key] == null) return;
     if (listeners[key] == 1) {
       listeners.remove(key);
-      _cache.startTimer(key);
+      _cache.startTimer(key, options.cacheOptions);
     } else {
       listeners[key] = listeners[key]! - 1;
     }
+  }
+
+  bool isQueryStale(String key) {
+    final entry = _cache.getData<RemoterData>(key);
+    if (entry == null) return true;
+    final isStale = clock.now().difference(entry.updatedAt).inMilliseconds >
+        options.staleTime;
+    return isStale;
   }
 
   /// Returns [hasInitialData] boolean
@@ -146,7 +154,7 @@ class RemoterData<T> {
     this.isRefetching = false,
     this.status = RemoterStatus.idle,
     DateTime? updatedAt,
-  }) : updatedAt = updatedAt ?? DateTime.now();
+  }) : updatedAt = updatedAt ?? clock.now();
   @override
   String toString() {
     return "RemoteData -> key: $key, value: $data, status: $status, error: $error, updatedAt: $updatedAt";

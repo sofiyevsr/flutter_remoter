@@ -27,6 +27,7 @@ void main() {
         expect(cache.getData("cache"), null);
       });
     });
+
     test("entry not removed after timer stopped", () {
       final cache = RemoterCache();
 
