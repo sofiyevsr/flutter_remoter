@@ -29,7 +29,7 @@ void main() {
           "cache",
           "str",
         );
-        cache.startTimer("cache", CacheOptions(cacheTime: 5000));
+        cache.startTimer("cache", 5000);
         async.elapse(const Duration(milliseconds: 5000));
         expect(cache.getData("cache"), isNull);
       });
@@ -43,7 +43,7 @@ void main() {
           "cache",
           "str",
         );
-        cache.startTimer("cache", CacheOptions(cacheTime: 5000));
+        cache.startTimer("cache", 5000);
         async.elapse(const Duration(milliseconds: 1000));
         cache.deleteTimer("cache");
         async.elapse(const Duration(milliseconds: 4000));
