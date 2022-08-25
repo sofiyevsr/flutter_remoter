@@ -17,16 +17,15 @@ Done List
 - [x] Cache is collected after cache time if there is no listener
 - [x] Global options
 - [x] Add State listener on Query widget
+- [x] Implement stale time
+- [x] Invalidate query api
+- [x] Fetch only once when multiple widget mounts at the same time
 
 ToDo List
 - [ ] Infinite Query Widget
-- [ ] Refactor fetch function
-- [ ] Make sure no stream leaks
 - [ ] Fix Generic Types
-- [ ] Implement stale time
 - [ ] More client options
 - [ ] Single Query parameters
-- [ ] Invalidate query api
 
 Remoter aims to synchronize, revalidate and cache remote data
 
