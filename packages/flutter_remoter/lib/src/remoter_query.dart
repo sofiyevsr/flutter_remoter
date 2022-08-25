@@ -6,14 +6,15 @@ import 'package:remoter/remoter.dart';
 
 class RemoterQuery<T> extends StatefulWidget {
   final String remoterKey;
-  final Future<T> Function() fn;
-  final Widget Function(BuildContext, RemoterData<T>?) builder;
+  final Future<T> Function() execute;
+  final Widget Function(BuildContext, RemoterData<T>?, RemoterClient client)
+      builder;
   final Function(RemoterData<T> oldState, RemoterData<T> newState)? listener;
   const RemoterQuery({
     super.key,
     this.listener,
     required this.remoterKey,
-    required this.fn,
+    required this.execute,
     required this.builder,
   });
 
@@ -28,7 +29,7 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
   RemoterData<T> _startStream() {
     subscription?.cancel();
     final provider = RemoterProvider.of(context);
-    provider.client.fetch<T>(widget.remoterKey, widget.fn);
+    provider.client.fetch<T>(widget.remoterKey, widget.execute);
     subscription = provider.client.getStream<T>(widget.remoterKey).listen(
       (event) {
         if (widget.listener != null) widget.listener!(data, event);
@@ -69,8 +70,12 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.builder(
-        context,
-        data,
-      );
+  Widget build(BuildContext context) {
+    final client = RemoterProvider.of(context).client;
+    return widget.builder(
+      context,
+      data,
+      client,
+    );
+  }
 }

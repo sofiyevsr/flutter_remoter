@@ -37,10 +37,10 @@ void main() {
       client: client,
       child: RemoterQuery<String>(
         remoterKey: "cache",
-        fn: () async {
-          return "data from fn";
+        execute: () async {
+          return "data from execute";
         },
-        builder: (ctx, snapshot) => Text(snapshot?.data ?? "null"),
+        builder: (ctx, snapshot, _) => Text(snapshot?.data ?? "null"),
       ),
     ));
     expect(find.text("str"), findsOneWidget);
@@ -55,14 +55,14 @@ void main() {
       client: client,
       child: RemoterQuery<String>(
         remoterKey: "cache",
-        fn: () async {
-          return "data from fn";
+        execute: () async {
+          return "data from execute";
         },
-        builder: (ctx, snapshot) => Text(snapshot?.data ?? "null"),
+        builder: (ctx, snapshot, _) => Text(snapshot?.data ?? "null"),
       ),
     ));
     await tester.pumpAndSettle();
-    expect(find.text("data from fn"), findsOneWidget);
+    expect(find.text("data from execute"), findsOneWidget);
   });
 
   testWidgets('renders update', (tester) async {
@@ -71,14 +71,14 @@ void main() {
       client: client,
       child: RemoterQuery<String>(
         remoterKey: "cache",
-        fn: () async {
-          return "data from fn";
+        execute: () async {
+          return "data from execute";
         },
-        builder: (ctx, snapshot) => Text(snapshot?.data ?? "null"),
+        builder: (ctx, snapshot, _) => Text(snapshot?.data ?? "null"),
       ),
     ));
     expect(find.text("null"), findsOneWidget);
     await tester.pumpAndSettle();
-    expect(find.text("data from fn"), findsOneWidget);
+    expect(find.text("data from execute"), findsOneWidget);
   });
 }

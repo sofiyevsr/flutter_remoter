@@ -9,8 +9,11 @@ import 'stream_utils.dart';
 class RemoterClient {
   final RemoterClientOptions options;
 
-  ///
+  /// Count of listeners of each key
   final Map<String, int> listeners = {};
+
+  /// Count of listeners of each key
+  final Map<String, Future<dynamic> Function()> functions = {};
   final RemoterCache _cache;
   final StreamController<RemoterData> _cacheStream =
       StreamController.broadcast();
@@ -40,7 +43,7 @@ class RemoterClient {
                   ? RemoterData<T>(
                       key: key,
                       data: cachedValue.data,
-                      status: RemoterStatus.isSuccess,
+                      status: RemoterStatus.success,
                     )
                   : null,
             ),
@@ -52,6 +55,7 @@ class RemoterClient {
   Future<void> fetch<T>(String key, Future<T> Function() fn,
       [int? staleTime]) async {
     final initialData = getData<T>(key);
+    functions[key] = fn;
 
     /// Fetch is in progress already
     if (initialData != null &&
@@ -62,7 +66,7 @@ class RemoterClient {
 
     /// If cache for [key] is there and is not stale
     /// return cache
-    if (initialData != null && initialData.status == RemoterStatus.isSuccess) {
+    if (initialData != null && initialData.status == RemoterStatus.success) {
       if (isQueryStale(key, staleTime)) {
         _dispatch(
           key,
@@ -93,7 +97,7 @@ class RemoterClient {
         RemoterData<T>(
           key: key,
           data: data,
-          status: RemoterStatus.isSuccess,
+          status: RemoterStatus.success,
         ),
       );
     } catch (error) {
@@ -102,7 +106,68 @@ class RemoterClient {
         RemoterData<T>(
           key: key,
           data: initialData?.data,
-          status: RemoterStatus.isError,
+          status: RemoterStatus.error,
+          error: error,
+        ),
+      );
+    }
+  }
+
+  Future<void> invalidateQuery<T>(String key) async {
+    final initialData = getData<T>(key);
+    final fn = functions[key];
+    if (fn == null) return;
+    try {
+      final data = await fn();
+      _dispatch(
+        key,
+        RemoterData<T>(
+          key: key,
+          data: data,
+          status: RemoterStatus.success,
+        ),
+      );
+    } catch (error) {
+      _dispatch(
+        key,
+        RemoterData<T>(
+          key: key,
+          data: initialData?.data,
+          status: RemoterStatus.error,
+          error: error,
+        ),
+      );
+    }
+  }
+
+  Future<void> retry<T>(String key) async {
+    final fn = functions[key];
+    if (fn == null) return;
+    _dispatch(
+      key,
+      RemoterData<T>(
+        key: key,
+        data: null,
+        status: RemoterStatus.fetching,
+      ),
+    );
+    try {
+      final data = await fn();
+      _dispatch(
+        key,
+        RemoterData<T>(
+          key: key,
+          data: data,
+          status: RemoterStatus.success,
+        ),
+      );
+    } catch (error) {
+      _dispatch(
+        key,
+        RemoterData<T>(
+          key: key,
+          data: null,
+          status: RemoterStatus.error,
           error: error,
         ),
       );
@@ -112,7 +177,7 @@ class RemoterClient {
   void setData<T>(String key, T data) {
     _dispatch(
       key,
-      RemoterData<T>(key: key, data: data, status: RemoterStatus.isSuccess),
+      RemoterData<T>(key: key, data: data, status: RemoterStatus.success),
     );
   }
 
@@ -196,6 +261,6 @@ class RemoterClientOptions {
 enum RemoterStatus {
   idle,
   fetching,
-  isSuccess,
-  isError,
+  success,
+  error,
 }
