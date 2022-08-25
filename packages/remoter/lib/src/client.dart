@@ -4,9 +4,13 @@ import 'package:clock/clock.dart';
 import 'cache.dart';
 import 'stream_utils.dart';
 
+/// Client that processes query actions and holds cache data
+/// [options] holds global options which is used on each query
 class RemoterClient {
-  final Map<String, int> listeners = {};
   final RemoterClientOptions options;
+
+  ///
+  final Map<String, int> listeners = {};
   final RemoterCache _cache;
   final StreamController<RemoterData> _cacheStream =
       StreamController.broadcast();
@@ -15,15 +19,18 @@ class RemoterClient {
       : options = options ?? RemoterClientOptions(),
         _cache = RemoterCache();
 
-  Stream<RemoterData<T>> getStream<T>(String key) {
+  Stream<RemoterData<T>> getStream<T>(String key, [int? cacheTime]) {
     final cachedValue = _cache.getData<RemoterData<T>>(key);
+
+    /// Create new stream
+    /// that emits latest value from cache first
     final stream = _cacheStream.stream
         .cast<RemoterData<T>>()
         .where((event) => event.key == key)
         .transform(
           CustomStreamTransformer(
             onClose: () {
-              decreaseListenersCount(key);
+              decreaseListenersCount(key, cacheTime);
             },
             onListen: () {
               increaseListenersCount(key);
@@ -42,11 +49,45 @@ class RemoterClient {
     return stream;
   }
 
-  Future<void> fetch<T>(String key, Future<T> Function() fn) async {
-    final dataFromCache = _fetchFromCache<T>(key);
+  Future<void> fetch<T>(String key, Future<T> Function() fn,
+      [int? staleTime]) async {
+    final initialData = getData<T>(key);
+
+    /// Fetch is in progress already
+    if (initialData != null &&
+        (initialData.status == RemoterStatus.fetching ||
+            initialData.isRefetching == true)) {
+      return;
+    }
+
+    /// If cache for [key] is there and is not stale
+    /// return cache
+    if (initialData != null && initialData.status == RemoterStatus.isSuccess) {
+      if (isQueryStale(key, staleTime)) {
+        _dispatch(
+          key,
+          RemoterData<T>(
+            key: key,
+            data: initialData.data,
+            status: initialData.status,
+            isRefetching: true,
+          ),
+        );
+      } else {
+        return _dispatch(key, initialData);
+      }
+    } else {
+      _dispatch(
+        key,
+        RemoterData<T>(
+          key: key,
+          data: null,
+          status: RemoterStatus.fetching,
+        ),
+      );
+    }
     try {
       final data = await fn();
-      // Will behave as refetch if data exists in cache
       _dispatch(
         key,
         RemoterData<T>(
@@ -60,7 +101,7 @@ class RemoterClient {
         key,
         RemoterData<T>(
           key: key,
-          data: dataFromCache.data,
+          data: initialData?.data,
           status: RemoterStatus.isError,
           error: error,
         ),
@@ -79,6 +120,9 @@ class RemoterClient {
     return _cache.getData<RemoterData<T>>(key);
   }
 
+  /// Increases listeners count for [key]
+  /// If key was scheduled for being deleted (no listener is there),
+  /// then stop timer that deletes cache
   void increaseListenersCount(String key) {
     if (listeners[key] == null) {
       listeners[key] = 1;
@@ -88,50 +132,29 @@ class RemoterClient {
     }
   }
 
-  void decreaseListenersCount(String key) {
+  /// Decrease listeners count for [key]
+  /// If there is no listener
+  /// Start timer to delete cache after [cacheTime]
+  void decreaseListenersCount(String key, [int? cacheTime]) {
     if (listeners[key] == null) return;
     if (listeners[key] == 1) {
       listeners.remove(key);
-      _cache.startTimer(key, options.cacheOptions);
+      _cache.startTimer(key, cacheTime ?? options.cacheOptions.cacheTime);
     } else {
       listeners[key] = listeners[key]! - 1;
     }
   }
 
-  bool isQueryStale(String key) {
+  bool isQueryStale(String key, [int? staleTime]) {
     final entry = _cache.getData<RemoterData>(key);
     if (entry == null) return true;
-    final isStale = clock.now().difference(entry.updatedAt).inMilliseconds >
-        options.staleTime;
+    final isStale = clock.now().difference(entry.updatedAt).inMilliseconds >=
+        (staleTime ?? options.staleTime);
     return isStale;
   }
 
-  /// Returns [hasInitialData] boolean
-  RemoterData<T> _fetchFromCache<T>(String key) {
-    final initialData = getData<T>(key);
-    if (initialData == null) {
-      final data = RemoterData<T>(
-        key: key,
-        data: null,
-        status: RemoterStatus.fetching,
-      );
-      _dispatch(
-        key,
-        data,
-      );
-      return data;
-    }
-    final data = RemoterData<T>(
-      key: key,
-      data: initialData.data,
-      status: RemoterStatus.isSuccess,
-      isRefetching: true,
-    );
-    _dispatch(
-      key,
-      data,
-    );
-    return data;
+  void dispose() {
+    _cache.close();
   }
 
   void _dispatch<T>(String key, RemoterData<T> data) {

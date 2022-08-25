@@ -1,6 +1,6 @@
-import 'package:fake_async/fake_async.dart';
 import 'package:remoter/remoter.dart';
 import 'package:test/test.dart';
+import 'utils/run_fake_async.dart';
 
 void main() {
   group("simple apis work", () {
@@ -8,10 +8,10 @@ void main() {
       final client = RemoterClient(
         options: RemoterClientOptions(staleTime: 1000),
       );
-      _runFakeAsync((async) async {
+      runFakeAsync((async) async {
         await client.fetch("cache", () async => "test");
         expect(client.isQueryStale("cache"), false);
-        async.elapse(const Duration(milliseconds: 10000));
+        async.elapse(const Duration(milliseconds: 1000));
         expect(client.isQueryStale("cache"), true);
       });
     });
@@ -33,14 +33,14 @@ void main() {
       final client = RemoterClient(
         options: RemoterClientOptions(cacheTime: 5000),
       );
-      _runFakeAsync((async) async {
+      runFakeAsync((async) async {
         // increase listener counts
         final f = client.getStream("cache").listen((event) {});
         await client.fetch<String>("cache", () async => "str");
         expect(client.getData<String>("cache")?.data, "str");
         // decrease listener count to start timer
         f.cancel();
-        async.elapse(const Duration(milliseconds: 6000));
+        async.elapse(const Duration(milliseconds: 5000));
         expect(client.getData<String>("cache"), isNull);
       });
     });
@@ -50,7 +50,7 @@ void main() {
         final client = RemoterClient(
           options: RemoterClientOptions(cacheTime: 5000),
         );
-        _runFakeAsync((async) async {
+        runFakeAsync((async) async {
           // increase listener counts
           final f = client.getStream("cache").listen((event) {});
           await client.fetch<String>("cache", () async => "str");
@@ -60,21 +60,10 @@ void main() {
           async.elapse(const Duration(milliseconds: 1000));
           // start new listener
           client.getStream("cache").listen((event) {});
-          async.elapse(const Duration(milliseconds: 5000));
+          async.elapse(const Duration(milliseconds: 4000));
           expect(client.getData<String>("cache")?.data, "str");
         });
       },
     );
-  });
-}
-
-Future<T> _runFakeAsync<T>(Future<T> Function(FakeAsync time) f) async {
-  return FakeAsync().run((FakeAsync time) async {
-    bool pump = true;
-    final Future<T> future = f(time).whenComplete(() => pump = false);
-    while (pump) {
-      time.flushMicrotasks();
-    }
-    return future;
   });
 }

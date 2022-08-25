@@ -19,12 +19,14 @@ Done List
 - [x] Add State listener on Query widget
 
 ToDo List
+- [ ] Infinite Query Widget
 - [ ] Refactor fetch function
 - [ ] Make sure no stream leaks
 - [ ] Fix Generic Types
 - [ ] Implement stale time
 - [ ] More client options
 - [ ] Single Query parameters
+- [ ] Invalidate query api
 
 Remoter aims to synchronize, revalidate and cache remote data
 

@@ -21,11 +21,14 @@ class CustomSink<S> {
 
   void onDone() => _controller.close();
 
+  /// Add [startValue] when user starts to listen
   void onListen() {
     if (startValue == null) return;
     _controller.sink.add(startValue as S);
   }
 
+  /// Allow stream to add onClose callback to sink controller
+  /// Because it's not possible to do in StreamTransformer
   void setOnCloseCallback(Function() onClose) {
     _controller.onCancel = () {
       onClose();

@@ -15,9 +15,9 @@ class RemoterCache {
 
   /// Start timer to delete entry with [key]
   /// Used when all listeners are gone
-  void startTimer(key, [CacheOptions? options]) {
-    options ??= CacheOptions();
-    final timer = _setTimer(options.cacheTime, () {
+  void startTimer(key, [int? cacheTime]) {
+    cacheTime ??= CacheOptions().cacheTime;
+    final timer = _setTimer(cacheTime, () {
       deleteEntry(key);
       deleteTimer(key);
     });
@@ -44,11 +44,12 @@ class RemoterCache {
     return _storage[key];
   }
 
-  /// Cancel all timers and streams
+  /// Clears all data, all timers and streams
   void close() {
-    _timers.forEach((key, _) {
-      deleteTimer(key);
-    });
+    _storage.clear();
+    for (int i = 0; i < _timers.keys.length; i++) {
+      deleteTimer(_timers.keys.elementAt(i));
+    }
   }
 
   /// Cancel [Timer] and deletes from memory

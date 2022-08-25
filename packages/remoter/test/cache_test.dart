@@ -11,6 +11,13 @@ void main() {
       final d = cache.getData<String>("cache");
       expect(d, equals("str"));
     });
+    test('delete data works', () {
+      final cache = RemoterCache();
+      cache.setEntry<String>("cache", "str");
+      cache.deleteEntry("cache");
+      final d = cache.getData<String>("cache");
+      expect(d, isNull);
+    });
   });
 
   group("stream tests", () {
@@ -24,7 +31,7 @@ void main() {
         );
         cache.startTimer("cache", CacheOptions(cacheTime: 5000));
         async.elapse(const Duration(milliseconds: 5000));
-        expect(cache.getData("cache"), null);
+        expect(cache.getData("cache"), isNull);
       });
     });
 
@@ -39,7 +46,7 @@ void main() {
         cache.startTimer("cache", CacheOptions(cacheTime: 5000));
         async.elapse(const Duration(milliseconds: 1000));
         cache.deleteTimer("cache");
-        async.elapse(const Duration(milliseconds: 5000));
+        async.elapse(const Duration(milliseconds: 4000));
         expect(cache.getData("cache"), isNotNull);
       });
     });

@@ -23,12 +23,9 @@ class RemoterQuery<T> extends StatefulWidget {
 
 class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
   StreamSubscription<RemoterData<T>>? subscription;
-  late RemoterData<T> data = RemoterData<T>(
-    key: widget.remoterKey,
-    data: null,
-  );
+  late RemoterData<T> data;
 
-  void _startStream() {
+  RemoterData<T> _startStream() {
     subscription?.cancel();
     final provider = RemoterProvider.of(context);
     provider.client.fetch<T>(widget.remoterKey, widget.fn);
@@ -40,23 +37,29 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
         });
       },
     );
+    return provider.client.getData<T>(widget.remoterKey) ??
+        RemoterData<T>(
+          key: widget.remoterKey,
+          data: null,
+          status: RemoterStatus.fetching,
+        );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (subscription != null) return;
-    _startStream();
+    data = _startStream();
   }
 
   @override
   void didUpdateWidget(RemoterQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.remoterKey == widget.remoterKey) return;
+    final newData = _startStream();
     setState(() {
-      data = RemoterData(key: widget.remoterKey, data: null);
+      data = newData;
     });
-    _startStream();
   }
 
   @override
