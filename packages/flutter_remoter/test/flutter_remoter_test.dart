@@ -32,7 +32,7 @@ class _AppState extends State<App> {
 void main() {
   testWidgets('renders initial data on startup', (tester) async {
     final client = RemoterClient();
-    await client.fetch("cache", () async => "str");
+    await client.fetch("cache", () async => "result");
     await tester.pumpWidget(App(
       client: client,
       child: RemoterQuery<String>(
@@ -40,17 +40,17 @@ void main() {
         execute: () async {
           return "data from execute";
         },
-        builder: (ctx, snapshot, _) => Text(snapshot?.data ?? "null"),
+        builder: (ctx, snapshot) => Text(snapshot.data ?? "null"),
       ),
     ));
-    expect(find.text("str"), findsOneWidget);
+    expect(find.text("result"), findsOneWidget);
   });
 
   testWidgets("refetches when new listener mounted", (tester) async {
     final client = RemoterClient(
       options: RemoterClientOptions(staleTime: 0),
     );
-    await client.fetch("cache", () async => "str");
+    await client.fetch("cache", () async => "result");
     await tester.pumpWidget(App(
       client: client,
       child: RemoterQuery<String>(
@@ -58,7 +58,7 @@ void main() {
         execute: () async {
           return "data from execute";
         },
-        builder: (ctx, snapshot, _) => Text(snapshot?.data ?? "null"),
+        builder: (ctx, snapshot) => Text(snapshot.data ?? "null"),
       ),
     ));
     await tester.pumpAndSettle();
@@ -74,7 +74,7 @@ void main() {
         execute: () async {
           return "data from execute";
         },
-        builder: (ctx, snapshot, _) => Text(snapshot?.data ?? "null"),
+        builder: (ctx, snapshot) => Text(snapshot.data ?? "null"),
       ),
     ));
     expect(find.text("null"), findsOneWidget);

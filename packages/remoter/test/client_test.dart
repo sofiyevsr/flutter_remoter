@@ -7,7 +7,7 @@ void main() {
     test("retry works on query error status", () async {
       final client = RemoterClient();
       bool passError = false;
-      await client.fetch("cache", () async {
+      await client.fetch("cache", (_) {
         if (passError == true) {
           return "test";
         }
@@ -21,7 +21,7 @@ void main() {
     test("invalidate query works", () async {
       final client = RemoterClient();
       bool pass = false;
-      await client.fetch("cache", () async {
+      await client.fetch("cache", (_) {
         if (pass == true) {
           return "new";
         }
@@ -37,7 +37,7 @@ void main() {
         options: RemoterClientOptions(staleTime: 1000),
       );
       runFakeAsync((async) async {
-        await client.fetch("cache", () async => "test");
+        await client.fetch("cache", (_) => "test");
         expect(client.isQueryStale("cache"), false);
         async.elapse(const Duration(milliseconds: 1000));
         expect(client.isQueryStale("cache"), true);
@@ -64,8 +64,8 @@ void main() {
       runFakeAsync((async) async {
         // increase listener counts
         final f = client.getStream("cache").listen((event) {});
-        await client.fetch<String>("cache", () async => "str");
-        expect(client.getData<String>("cache")?.data, "str");
+        await client.fetch<String>("cache", (_) => "result");
+        expect(client.getData<RemoterData<String>>("cache")?.data, "result");
         // decrease listener count to start timer
         f.cancel();
         async.elapse(const Duration(milliseconds: 5000));
@@ -81,15 +81,15 @@ void main() {
         runFakeAsync((async) async {
           // increase listener counts
           final f = client.getStream("cache").listen((event) {});
-          await client.fetch<String>("cache", () async => "str");
-          expect(client.getData<String>("cache")?.data, "str");
+          await client.fetch<String>("cache", (_) => "result");
+          expect(client.getData<RemoterData<String>>("cache")?.data, "result");
           // decrease listener count to start timer
           f.cancel();
           async.elapse(const Duration(milliseconds: 1000));
           // start new listener
           client.getStream("cache").listen((event) {});
           async.elapse(const Duration(milliseconds: 4000));
-          expect(client.getData<String>("cache")?.data, "str");
+          expect(client.getData<RemoterData<String>>("cache")?.data, "result");
         });
       },
     );

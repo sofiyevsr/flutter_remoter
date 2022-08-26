@@ -7,13 +7,13 @@ void main() {
   group("simple apis work", () {
     test('set data works', () {
       final cache = RemoterCache();
-      cache.setEntry<String>("cache", "str");
+      cache.setEntry<String>("cache", "result");
       final d = cache.getData<String>("cache");
-      expect(d, equals("str"));
+      expect(d, equals("result"));
     });
     test('delete data works', () {
       final cache = RemoterCache();
-      cache.setEntry<String>("cache", "str");
+      cache.setEntry<String>("cache", "result");
       cache.deleteEntry("cache");
       final d = cache.getData<String>("cache");
       expect(d, isNull);
@@ -27,7 +27,7 @@ void main() {
       fakeAsync((async) {
         cache.setEntry<String>(
           "cache",
-          "str",
+          "result",
         );
         cache.startTimer("cache", 5000);
         async.elapse(const Duration(milliseconds: 5000));
@@ -41,7 +41,7 @@ void main() {
       fakeAsync((async) {
         cache.setEntry<String>(
           "cache",
-          "str",
+          "result",
         );
         cache.startTimer("cache", 5000);
         async.elapse(const Duration(milliseconds: 1000));

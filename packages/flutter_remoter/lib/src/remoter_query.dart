@@ -6,9 +6,8 @@ import 'package:remoter/remoter.dart';
 
 class RemoterQuery<T> extends StatefulWidget {
   final String remoterKey;
-  final Future<T> Function() execute;
-  final Widget Function(BuildContext, RemoterData<T>?, RemoterClient client)
-      builder;
+  final FutureOr<T> Function() execute;
+  final Widget Function(BuildContext, RemoterData<T>) builder;
   final Function(RemoterData<T> oldState, RemoterData<T> newState)? listener;
   final RemoterClientOptions? options;
   const RemoterQuery({
@@ -21,10 +20,10 @@ class RemoterQuery<T> extends StatefulWidget {
   });
 
   @override
-  State<RemoterQuery<T>> createState() => _RemoterQueryState<T>();
+  State<RemoterQuery<T>> createState() => RemoterQueryState<T>();
 }
 
-class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
+class RemoterQueryState<T> extends State<RemoterQuery<T>> {
   StreamSubscription<RemoterData<T>>? subscription;
   late RemoterData<T> data;
 
@@ -33,11 +32,14 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
     final provider = RemoterProvider.of(context);
     provider.client.fetch<T>(
       widget.remoterKey,
-      widget.execute,
+      (_) {
+        widget.execute();
+      },
       widget.options?.staleTime,
     );
     subscription = provider.client
-        .getStream<T>(widget.remoterKey, widget.options?.cacheTime)
+        .getStream<RemoterData<T>, T>(
+            widget.remoterKey, widget.options?.cacheTime)
         .listen(
       (event) {
         if (widget.listener != null) widget.listener!(data, event);
@@ -46,7 +48,7 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
         });
       },
     );
-    return provider.client.getData<T>(widget.remoterKey) ??
+    return provider.client.getData<RemoterData<T>>(widget.remoterKey) ??
         RemoterData<T>(
           key: widget.remoterKey,
           data: null,
@@ -79,11 +81,9 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final client = RemoterProvider.of(context).client;
     return widget.builder(
       context,
       data,
-      client,
     );
   }
 }
