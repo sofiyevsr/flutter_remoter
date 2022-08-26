@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
+import 'types.dart';
 import 'cache.dart';
 import 'stream_utils.dart';
 
@@ -22,6 +23,7 @@ class RemoterClient {
       : options = options ?? RemoterClientOptions(),
         _cache = RemoterCache();
 
+  /// Returns new [Stream] which gets cache entry if exists as first data
   Stream<RemoterData<T>> getStream<T>(String key, [int? cacheTime]) {
     final cachedValue = _cache.getData<RemoterData<T>>(key);
 
@@ -52,6 +54,8 @@ class RemoterClient {
     return stream;
   }
 
+  /// Executes given function and stores result in cache as entry with [key]
+  /// Also this function saves given function to use in invalidateQuery and retry APIs
   Future<void> fetch<T>(String key, Future<T> Function() fn,
       [int? staleTime]) async {
     final initialData = getData<T>(key);
@@ -64,8 +68,8 @@ class RemoterClient {
       return;
     }
 
-    /// If cache for [key] is there and is not stale
-    /// return cache
+    /// If cache for [key] is there and is not stale return cache
+    /// If cache is stale, trigger background refetch
     if (initialData != null && initialData.status == RemoterStatus.success) {
       if (isQueryStale(key, staleTime)) {
         _dispatch(
@@ -113,6 +117,7 @@ class RemoterClient {
     }
   }
 
+  /// Triggers a background fetch for given [key] if there is at least 1 listener
   Future<void> invalidateQuery<T>(String key) async {
     final initialData = getData<T>(key);
     final fn = functions[key];
@@ -140,9 +145,12 @@ class RemoterClient {
     }
   }
 
+  /// Retries failed query
+  /// Query should have [status] of [RemoterStatus.error]
   Future<void> retry<T>(String key) async {
+    final initialData = getData<T>(key);
     final fn = functions[key];
-    if (fn == null) return;
+    if (fn == null || initialData?.status != RemoterStatus.error) return;
     _dispatch(
       key,
       RemoterData<T>(
@@ -174,6 +182,8 @@ class RemoterClient {
     }
   }
 
+  /// Sets data for entry with [key]
+  /// Also notifies listeners with new state
   void setData<T>(String key, T data) {
     _dispatch(
       key,
@@ -181,6 +191,7 @@ class RemoterClient {
     );
   }
 
+  /// Return data from cache
   RemoterData<T>? getData<T>(String key) {
     return _cache.getData<RemoterData<T>>(key);
   }
@@ -199,17 +210,18 @@ class RemoterClient {
 
   /// Decrease listeners count for [key]
   /// If there is no listener
-  /// Start timer to delete cache after [cacheTime]
+  /// Start timer to delete cache after [cacheTime] or top level [options.staleTime]
   void decreaseListenersCount(String key, [int? cacheTime]) {
     if (listeners[key] == null) return;
     if (listeners[key] == 1) {
       listeners.remove(key);
-      _cache.startTimer(key, cacheTime ?? options.cacheOptions.cacheTime);
+      _cache.startTimer(key, cacheTime ?? options.cacheTime);
     } else {
       listeners[key] = listeners[key]! - 1;
     }
   }
 
+  /// Return if query is stale based on [staleTime] or top level [options.staleTime]
   bool isQueryStale(String key, [int? staleTime]) {
     final entry = _cache.getData<RemoterData>(key);
     if (entry == null) return true;
@@ -218,49 +230,14 @@ class RemoterClient {
     return isStale;
   }
 
+  /// Called to release all allocated resources
   void dispose() {
     _cache.close();
   }
 
+  /// Stores data in cache and notifies listeners
   void _dispatch<T>(String key, RemoterData<T> data) {
     _cacheStream.add(data);
     _cache.setEntry<RemoterData<T>>(key, data);
   }
-}
-
-class RemoterData<T> {
-  String key;
-  RemoterStatus status;
-  DateTime updatedAt;
-  bool isRefetching;
-  T? data;
-  Object? error;
-  RemoterData({
-    required this.key,
-    required this.data,
-    this.error,
-    this.isRefetching = false,
-    this.status = RemoterStatus.idle,
-    DateTime? updatedAt,
-  }) : updatedAt = updatedAt ?? clock.now();
-  @override
-  String toString() {
-    return "RemoteData -> key: $key, value: $data, status: $status, error: $error, updatedAt: $updatedAt";
-  }
-}
-
-class RemoterClientOptions {
-  int staleTime;
-  CacheOptions cacheOptions;
-  RemoterClientOptions({
-    this.staleTime = 0,
-    int? cacheTime,
-  }) : cacheOptions = CacheOptions(cacheTime: cacheTime);
-}
-
-enum RemoterStatus {
-  idle,
-  fetching,
-  success,
-  error,
 }

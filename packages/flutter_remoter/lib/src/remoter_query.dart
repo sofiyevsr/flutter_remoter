@@ -10,9 +10,11 @@ class RemoterQuery<T> extends StatefulWidget {
   final Widget Function(BuildContext, RemoterData<T>?, RemoterClient client)
       builder;
   final Function(RemoterData<T> oldState, RemoterData<T> newState)? listener;
+  final RemoterClientOptions? options;
   const RemoterQuery({
     super.key,
     this.listener,
+    this.options,
     required this.remoterKey,
     required this.execute,
     required this.builder,
@@ -29,8 +31,14 @@ class _RemoterQueryState<T> extends State<RemoterQuery<T>> {
   RemoterData<T> _startStream() {
     subscription?.cancel();
     final provider = RemoterProvider.of(context);
-    provider.client.fetch<T>(widget.remoterKey, widget.execute);
-    subscription = provider.client.getStream<T>(widget.remoterKey).listen(
+    provider.client.fetch<T>(
+      widget.remoterKey,
+      widget.execute,
+      widget.options?.staleTime,
+    );
+    subscription = provider.client
+        .getStream<T>(widget.remoterKey, widget.options?.cacheTime)
+        .listen(
       (event) {
         if (widget.listener != null) widget.listener!(data, event);
         setState(() {

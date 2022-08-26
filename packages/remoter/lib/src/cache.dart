@@ -15,8 +15,7 @@ class RemoterCache {
 
   /// Start timer to delete entry with [key]
   /// Used when all listeners are gone
-  void startTimer(key, [int? cacheTime]) {
-    cacheTime ??= CacheOptions().cacheTime;
+  void startTimer(key, int cacheTime) {
     final timer = _setTimer(cacheTime, () {
       deleteEntry(key);
       deleteTimer(key);
@@ -55,28 +54,5 @@ class RemoterCache {
   /// Cancel [Timer] and deletes from memory
   Timer _setTimer(int duration, Function() onCallback) {
     return Timer(Duration(milliseconds: duration), onCallback);
-  }
-}
-
-/// Represents object that is pushed when cache is mutated
-class CacheEvent<T> {
-  String key;
-  T data;
-  CacheEvent({required this.data, required this.key});
-
-  @override
-  String toString() {
-    return "Cache Event -> key: $key, data: $data";
-  }
-}
-
-/// Top level options for caching strategy
-class CacheOptions {
-  int cacheTime;
-  CacheOptions({int? cacheTime}) : cacheTime = cacheTime ?? 5 * 1000 * 60;
-
-  @override
-  String toString() {
-    return "Cache Options -> cacheTime: $cacheTime";
   }
 }

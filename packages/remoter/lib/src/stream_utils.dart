@@ -55,9 +55,11 @@ class CustomStreamTransformer<S> extends StreamTransformerBase<S, S> {
     sink.onListen();
     if (onListen != null) onListen!();
 
-    sub = stream.listen(sink.onData, onError: sink.onError, onDone: () {
-      sink.onDone();
-    });
+    sub = stream.listen(
+      sink.onData,
+      onError: sink.onError,
+      onDone: sink.onDone,
+    );
 
     sink.setOnCloseCallback(() {
       if (onClose != null) onClose!();
