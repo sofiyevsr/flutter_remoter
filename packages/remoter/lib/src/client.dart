@@ -210,7 +210,7 @@ class RemoterClient {
 
   /// Decrease listeners count for [key]
   /// If there is no listener
-  /// Start timer to delete cache after [cacheTime] or top level [options.staleTime]
+  /// Start timer to delete cache after [cacheTime] or top level [options.cacheTime]
   void decreaseListenersCount(String key, [int? cacheTime]) {
     if (listeners[key] == null) return;
     if (listeners[key] == 1) {
