@@ -33,7 +33,7 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
     provider.client.fetch<T>(
       widget.remoterKey,
       (_) {
-        widget.execute();
+        return widget.execute();
       },
       widget.options?.staleTime,
     );

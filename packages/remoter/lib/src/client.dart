@@ -100,7 +100,7 @@ class RemoterClient {
         ),
       );
     }
-    _fetchQuery(key);
+    _fetchQuery<T>(key);
   }
 
   /// Executes given function and stores result in cache as entry with [key]
@@ -166,6 +166,7 @@ class RemoterClient {
             ),
       );
     }
+    _fetchInfiniteQuery<T>(key);
   }
 
   /// Fetches next page of data with [key]
@@ -266,14 +267,14 @@ class RemoterClient {
         key,
         (initialData as RemoterData).copyWith(isRefetching: Nullable(true)),
       );
-      _fetchQuery(key, (initialData as RemoterData));
+      _fetchQuery<T>(key, (initialData as RemoterData<T>));
     } else if (initialData is InfiniteRemoterData) {
       _dispatch(
         key,
         (initialData as InfiniteRemoterData)
             .copyWith(isRefetching: Nullable(true)),
       );
-      _fetchInfiniteQuery(key, (initialData as InfiniteRemoterData));
+      _fetchInfiniteQuery<T>(key, (initialData as InfiniteRemoterData<T>));
     }
   }
 
