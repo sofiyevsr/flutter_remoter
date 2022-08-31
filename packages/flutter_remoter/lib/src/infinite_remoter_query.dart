@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_remoter/src/remoter_provider.dart';
+import 'package:flutter_remoter/flutter_remoter.dart';
 import 'package:remoter/remoter.dart';
 
 class InfiniteRemoterQuery<T> extends StatefulWidget {
   final String remoterKey;
   final FutureOr<T> Function(RemoterParam?) execute;
-  final Widget Function(BuildContext, InfiniteRemoterData<T>) builder;
+  final Widget Function(
+    BuildContext,
+    InfiniteRemoterData<T>,
+    RemoterInfiniteUtils utils,
+  ) builder;
   final dynamic Function(List<T>)? getNextPageParam;
   final dynamic Function(List<T>)? getPreviousPageParam;
   final RemoterClientOptions? options;
@@ -40,7 +44,7 @@ class _InfiniteRemoterQueryState<T> extends State<InfiniteRemoterQuery<T>> {
         getNextPageParam: widget.getNextPageParam,
       ),
     );
-    provider.client.fetchInfinite(
+    provider.client.fetchInfinite<T>(
       widget.remoterKey,
       widget.execute,
       widget.options?.staleTime,
@@ -58,7 +62,7 @@ class _InfiniteRemoterQueryState<T> extends State<InfiniteRemoterQuery<T>> {
           key: widget.remoterKey,
           data: null,
           pageParams: null,
-          status: RemoterStatus.success,
+          status: RemoterStatus.fetching,
         );
   }
 
@@ -87,9 +91,13 @@ class _InfiniteRemoterQueryState<T> extends State<InfiniteRemoterQuery<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder(
-      context,
-      data,
+    final remoter = RemoterProvider.of(context);
+    final utils = RemoterInfiniteUtils(
+      fetchNextPage: () => remoter.client.fetchNextPage(widget.remoterKey),
+      fetchPreviousPage: () =>
+          remoter.client.fetchPreviousPage(widget.remoterKey),
+      invalidateQuery: () => remoter.client.invalidateQuery(widget.remoterKey),
     );
+    return widget.builder(context, data, utils);
   }
 }

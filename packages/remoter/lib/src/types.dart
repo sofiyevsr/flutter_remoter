@@ -78,7 +78,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
 }
 
 class InfiniteRemoterData<T> extends BaseRemoterData<T> {
-  final List<dynamic>? pageParams;
+  final List<RemoterParam?>? pageParams;
   final List<T>? data;
   final bool isFetchingNextPage;
   final bool isFetchingPreviousPage;
@@ -109,7 +109,7 @@ class InfiniteRemoterData<T> extends BaseRemoterData<T> {
   InfiniteRemoterData<T> copyWith({
     String? key,
     Nullable<List<T>>? data,
-    Nullable<List<dynamic>>? pageParams,
+    Nullable<List<RemoterParam?>>? pageParams,
     Nullable<Object>? error,
     Nullable<DateTime>? updatedAt,
     Nullable<RemoterStatus>? status,
@@ -147,6 +147,13 @@ class InfiniteRemoterData<T> extends BaseRemoterData<T> {
             : hasPreviousPage.value,
         hasNextPage: hasNextPage == null ? this.hasNextPage : hasNextPage.value,
       );
+
+  List<T>? modifyData(int index, T data) {
+    if (this.data == null) return null;
+    final clone = [...this.data!];
+    clone[index] = data;
+    return clone;
+  }
 }
 
 /// Represents object that is pushed when cache is mutated

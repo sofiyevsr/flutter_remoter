@@ -32,9 +32,7 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
     final provider = RemoterProvider.of(context);
     provider.client.fetch<T>(
       widget.remoterKey,
-      (_) {
-        return widget.execute();
-      },
+      (_) => widget.execute(),
       widget.options?.staleTime,
     );
     subscription = provider.client

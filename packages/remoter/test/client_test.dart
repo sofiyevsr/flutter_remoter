@@ -7,7 +7,7 @@ void main() {
     test("retry works on query error status", () async {
       final client = RemoterClient();
       bool passError = false;
-      await client.fetch("cache", (_) {
+      await client.fetch<String>("cache", (_) {
         if (passError == true) {
           return "test";
         }
@@ -21,7 +21,7 @@ void main() {
     test("invalidate query works", () async {
       final client = RemoterClient();
       bool pass = false;
-      await client.fetch("cache", (_) {
+      await client.fetch<String>("cache", (_) {
         if (pass == true) {
           return "new";
         }
@@ -37,7 +37,7 @@ void main() {
         options: RemoterClientOptions(staleTime: 1000),
       );
       runFakeAsync((async) async {
-        await client.fetch("cache", (_) => "test");
+        await client.fetch<String>("cache", (_) => "test");
         expect(client.isQueryStale("cache"), false);
         async.elapse(const Duration(milliseconds: 1000));
         expect(client.isQueryStale("cache"), true);
