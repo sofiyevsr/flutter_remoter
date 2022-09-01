@@ -33,6 +33,10 @@ class _AppState extends State<App> {
 void main() {
   testWidgets('renders initial data on startup', (tester) async {
     final client = RemoterClient();
+    client.saveInfiniteQueryFunctions(
+      "cache",
+      InfiniteQueryFunctions(getNextPageParam: (pages) => "next"),
+    );
     await client.fetchInfinite<String>("cache", (_) async => "result");
     await tester.pumpWidget(App(
       client: client,
@@ -45,24 +49,7 @@ void main() {
       ),
     ));
     expect(find.text("result"), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text("data from execute"), findsOneWidget);
   });
-
-  // testWidgets("refetches when new listener mounted", (tester) async {
-  //   final client = RemoterClient(
-  //     options: RemoterClientOptions(staleTime: 0),
-  //   );
-  //   await client.fetch<String>("cache", (_) async => "result");
-  //   await tester.pumpWidget(App(
-  //     client: client,
-  //     child: RemoterQuery<String>(
-  //       remoterKey: "cache",
-  //       execute: () async {
-  //         return "data from execute";
-  //       },
-  //       builder: (ctx, snapshot) => Text(snapshot.data ?? "null"),
-  //     ),
-  //   ));
-  //   await tester.pumpAndSettle();
-  //   expect(find.text("data from execute"), findsOneWidget);
-  // });
 }

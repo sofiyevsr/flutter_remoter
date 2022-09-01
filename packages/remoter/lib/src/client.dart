@@ -144,7 +144,7 @@ class RemoterClient {
       );
       final param = RemoterParam(value: pageParam, type: RemoterParamType.next);
       final data = await fn(param);
-      final mergedData = [...initialData.data!, data];
+      final mergedData = [...initialData.data!, data as T];
       _dispatch(
         key,
         InfiniteRemoterData<T>(
@@ -153,7 +153,7 @@ class RemoterClient {
             ...(initialData.pageParams ?? [null]),
             param
           ],
-          data: mergedData as List<T>,
+          data: mergedData,
           hasNextPage: pageFunctions.getNextPageParam!(mergedData) != null,
           status: RemoterStatus.success,
           isFetchingNextPage: false,
@@ -163,8 +163,8 @@ class RemoterClient {
       _dispatch(
         key,
         initialData.copyWith(
-          error: Nullable(error),
           isFetchingNextPage: Nullable(false),
+          isNextPageError: Nullable(true),
         ),
       );
     }
@@ -191,7 +191,7 @@ class RemoterClient {
       final param =
           RemoterParam(value: pageParam, type: RemoterParamType.previous);
       final data = await fn(param);
-      final mergedData = [data, ...initialData.data!];
+      final mergedData = [data as T, ...initialData.data!];
       _dispatch(
         key,
         InfiniteRemoterData<T>(
@@ -200,7 +200,7 @@ class RemoterClient {
             param,
             ...(initialData.pageParams ?? [null])
           ],
-          data: mergedData as List<T>,
+          data: mergedData,
           hasPreviousPage:
               pageFunctions.getPreviousPageParam!(mergedData) != null,
           status: RemoterStatus.success,
@@ -211,7 +211,6 @@ class RemoterClient {
       _dispatch(
         key,
         initialData.copyWith(
-          error: Nullable(error),
           isFetchingPreviousPage: Nullable(false),
           isPreviousPageError: Nullable(true),
         ),
@@ -223,7 +222,7 @@ class RemoterClient {
   Future<void> invalidateQuery<T>(String key) async {
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];
-    if (fn == null && listeners[key] != null && listeners[key]! > 0) return;
+    if (fn == null || listeners[key] == null || listeners[key]! < 1) return;
     if (initialData is RemoterData) {
       _dispatch(
         key,
@@ -356,6 +355,7 @@ class RemoterClient {
   Future<void> _fetchInfiniteQuery<T>(String key,
       [InfiniteRemoterData<T>? initialData]) async {
     final fn = functions[key];
+    final pagefn = infiniteQueryFunctions[key];
     if (fn == null) return;
     final pageParams = initialData?.pageParams ?? [null];
     final List<Future<void>> futures = [];
@@ -363,18 +363,26 @@ class RemoterClient {
       futures.add(() async {
         try {
           final data = await fn(pageParams[i]);
+          final modifiedData = initialData?.modifyData(i, data) ?? [data as T];
           _dispatch(
             key,
             initialData?.copyWith(
                   status: Nullable(RemoterStatus.success),
-                  data: Nullable(
-                    initialData.modifyData(i, data),
+                  data: Nullable(modifiedData),
+                  hasNextPage: Nullable(
+                    pagefn?.getNextPageParam?.call(modifiedData) != null,
+                  ),
+                  hasPreviousPage: Nullable(
+                    pagefn?.getPreviousPageParam?.call(modifiedData) != null,
                   ),
                 ) ??
                 InfiniteRemoterData<T>(
                   key: key,
                   pageParams: [null],
                   data: [data],
+                  hasNextPage: pagefn?.getNextPageParam?.call([data]) != null,
+                  hasPreviousPage:
+                      pagefn?.getPreviousPageParam?.call([data]) != null,
                   status: RemoterStatus.success,
                 ),
           );

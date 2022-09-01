@@ -44,7 +44,7 @@ class BaseRemoterData<T> {
         status = status ?? RemoterStatus.idle;
   @override
   String toString() {
-    return "RemoteData -> key: $key, status: $status, error: $error, updatedAt: $updatedAt";
+    return "BaseRemoteData -> key: $key, status: $status, error: $error, updatedAt: $updatedAt";
   }
 }
 
@@ -149,7 +149,7 @@ class InfiniteRemoterData<T> extends BaseRemoterData<T> {
       );
 
   List<T>? modifyData(int index, T data) {
-    if (this.data == null) return null;
+    if (this.data == null || index > this.data!.length - 1) return null;
     final clone = [...this.data!];
     clone[index] = data;
     return clone;

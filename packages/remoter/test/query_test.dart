@@ -28,6 +28,8 @@ void main() {
         pass = true;
         return "stale";
       });
+      // Required to be able to invalidate
+      client.getStream("cache");
       expect(client.getData("cache")?.data, "stale");
       await client.invalidateQuery("cache");
       expect(client.getData("cache")?.data, "new");

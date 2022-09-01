@@ -119,29 +119,4 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text("1"), findsOneWidget);
   });
-
-  testWidgets('retry query', (tester) async {
-    final client = RemoterClient();
-    bool firstPass = true;
-    await tester.pumpWidget(App(
-      client: client,
-      child: RemoterQuery<String>(
-        remoterKey: "cache",
-        execute: () async {
-          if (firstPass == true) {
-            firstPass = false;
-            throw Error();
-          }
-          return "data from execute";
-        },
-        builder: (ctx, snapshot) => Text(snapshot.status.name),
-      ),
-    ));
-    expect(find.text("fetching"), findsOneWidget);
-    await tester.pumpAndSettle();
-    expect(find.text("error"), findsOneWidget);
-    client.retry<String>("cache");
-    await tester.pumpAndSettle();
-    expect(find.text("success"), findsOneWidget);
-  });
 }
