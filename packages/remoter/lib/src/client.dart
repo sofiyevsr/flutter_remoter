@@ -91,15 +91,6 @@ class RemoterClient {
       } else {
         return _dispatch(key, initialData);
       }
-    } else {
-      _dispatch(
-        key,
-        RemoterData<T>(
-          key: key,
-          data: null,
-          status: RemoterStatus.fetching,
-        ),
-      );
     }
     _fetchQuery<T>(key);
   }
@@ -129,16 +120,6 @@ class RemoterClient {
       } else {
         return _dispatch(key, initialData);
       }
-    } else {
-      _dispatch(
-        key,
-        InfiniteRemoterData<T>(
-          key: key,
-          data: null,
-          pageParams: null,
-          status: RemoterStatus.fetching,
-        ),
-      );
     }
     _fetchInfiniteQuery<T>(key, initialData);
   }
