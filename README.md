@@ -1,36 +1,14 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-Done List
-
-- [x] Flutter widget and global client provider
-- [x] Fetch on startup
-- [x] Cache is collected after cache time if there is no listener
-- [x] Global options
-- [x] Add State listener on Query widget
-- [x] Implement stale time
-- [x] Invalidate query api
-- [x] Fetch only once when multiple widget mounts at the same time
-
-ToDo List
-
-- [ ] Infinite Query Widget
-
-Remoter aims to synchronize, revalidate and cache remote data
+Remoter aims to simplify handling asynchronous operations and revalidating them
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- [x] Cache is collected after cache time if there is no listener
+- [x] Global options
+- [x] Stale time
+- [x] Invalidate query
+- [x] Set query data manually
+- [x] Fetch only once when multiple widget mounts at the same time
+- [x] Pagination
 
 ## Getting started
 
