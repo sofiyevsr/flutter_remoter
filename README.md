@@ -1,4 +1,10 @@
-Remoter aims to simplify handling asynchronous operations and revalidating them
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
+</p>
+
+---
+
+Remoter aims to simplify handling asynchronous operations and revalidating them, inspired by [React Query](https://github.com/TanStack/query)
 
 ## Features
 
