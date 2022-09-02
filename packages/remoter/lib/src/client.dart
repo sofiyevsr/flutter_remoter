@@ -133,7 +133,8 @@ class RemoterClient {
   Future<void> fetchNextPage<T>(String key) async {
     final initialData = getData<InfiniteRemoterData<T>>(key);
     final fn = functions[key];
-    final pageFunctions = infiniteQueryFunctions[key];
+    final pageFunctions =
+        infiniteQueryFunctions[key] as InfiniteQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getNextPageParam == null ||
         initialData?.hasNextPage == false ||
@@ -170,6 +171,7 @@ class RemoterClient {
         initialData.copyWith(
           isFetchingNextPage: Nullable(false),
           isNextPageError: Nullable(true),
+          error: Nullable(error),
         ),
       );
     }
@@ -181,7 +183,8 @@ class RemoterClient {
   Future<void> fetchPreviousPage<T>(String key) async {
     final initialData = getData<InfiniteRemoterData<T>>(key);
     final fn = functions[key];
-    final pageFunctions = infiniteQueryFunctions[key];
+    final pageFunctions =
+        infiniteQueryFunctions[key] as InfiniteQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getPreviousPageParam == null ||
         initialData?.data == null ||
@@ -220,6 +223,7 @@ class RemoterClient {
         initialData.copyWith(
           isFetchingPreviousPage: Nullable(false),
           isPreviousPageError: Nullable(true),
+          error: Nullable(error),
         ),
       );
     }
@@ -368,7 +372,7 @@ class RemoterClient {
   Future<void> _fetchInfiniteQuery<T>(String key,
       [InfiniteRemoterData<T>? initialData]) async {
     final fn = functions[key];
-    final pagefn = infiniteQueryFunctions[key];
+    final pagefn = infiniteQueryFunctions[key] as InfiniteQueryFunctions<T>?;
     if (fn == null) return;
     final pageParams = initialData?.pageParams ?? [null];
     final List<Future<void>> futures = [];
@@ -401,7 +405,7 @@ class RemoterClient {
                 ),
           );
         } catch (error) {
-          if (initialData?.pageParams?.length == 1) {
+          if (initialData == null || initialData.pageParams?.length == 1) {
             _dispatch(
               key,
               InfiniteRemoterData<T>(
