@@ -92,11 +92,15 @@ class _InfiniteRemoterQueryState<T> extends State<InfiniteRemoterQuery<T>> {
   @override
   Widget build(BuildContext context) {
     final remoter = RemoterProvider.of(context);
-    final utils = RemoterInfiniteUtils(
-      fetchNextPage: () => remoter.client.fetchNextPage(widget.remoterKey),
+    final utils = RemoterInfiniteUtils<InfiniteRemoterData<T>>(
+      fetchNextPage: () => remoter.client.fetchNextPage<T>(widget.remoterKey),
       fetchPreviousPage: () =>
-          remoter.client.fetchPreviousPage(widget.remoterKey),
-      invalidateQuery: () => remoter.client.invalidateQuery(widget.remoterKey),
+          remoter.client.fetchPreviousPage<T>(widget.remoterKey),
+      invalidateQuery: () =>
+          remoter.client.invalidateQuery<T>(widget.remoterKey),
+      retry: () => remoter.client.retry<T>(widget.remoterKey),
+      setData: (data) => remoter.client
+          .setData<InfiniteRemoterData<T>>(widget.remoterKey, data),
     );
     return widget.builder(context, data, utils);
   }

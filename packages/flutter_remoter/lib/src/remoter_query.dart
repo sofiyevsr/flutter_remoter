@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/src/remoter_provider.dart';
+import 'package:flutter_remoter/src/types.dart';
 import 'package:remoter/remoter.dart';
 
 class RemoterQuery<T> extends StatefulWidget {
   final String remoterKey;
   final FutureOr<T> Function() execute;
-  final Widget Function(BuildContext, RemoterData<T>) builder;
+  final Widget Function(BuildContext, RemoterData<T>, RemoterQueryUtils utils)
+      builder;
   final Function(RemoterData<T> oldState, RemoterData<T> newState)? listener;
   final RemoterClientOptions? options;
   const RemoterQuery({
@@ -79,9 +81,18 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final remoter = RemoterProvider.of(context);
+    final utils = RemoterQueryUtils<RemoterData<T>>(
+      invalidateQuery: () =>
+          remoter.client.invalidateQuery<T>(widget.remoterKey),
+      retry: () => remoter.client.retry<T>(widget.remoterKey),
+      setData: (data) =>
+          remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
+    );
     return widget.builder(
       context,
       data,
+      utils,
     );
   }
 }

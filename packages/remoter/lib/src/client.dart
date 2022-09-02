@@ -31,6 +31,7 @@ class RemoterClient {
         _cache = RemoterCache();
 
   /// Returns new [Stream] which gets cache entry if exists as first data
+  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
   Stream<T> getStream<T extends BaseRemoterData, S>(String key,
       [int? cacheTime]) {
     T? cachedValue = _cache.getData<T>(key);
@@ -67,6 +68,7 @@ class RemoterClient {
 
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
+  /// [T] expects any data type
   Future<void> fetch<T>(String key, FetchFunction fn, [int? staleTime]) async {
     final initialData = getData<RemoterData<T>>(key);
     functions[key] = fn;
@@ -97,6 +99,7 @@ class RemoterClient {
 
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
+  /// [T] expects any data type
   Future<void> fetchInfinite<T>(String key, FetchFunction fn,
       [int? staleTime]) async {
     final initialData = getData<InfiniteRemoterData<T>>(key);
@@ -125,6 +128,8 @@ class RemoterClient {
   }
 
   /// Fetches next page of data with [key]
+  /// if [hasNextPage] of current data is true
+  /// [T] expects any data type
   Future<void> fetchNextPage<T>(String key) async {
     final initialData = getData<InfiniteRemoterData<T>>(key);
     final fn = functions[key];
@@ -171,6 +176,8 @@ class RemoterClient {
   }
 
   /// Fetches previous page of data with [key]
+  /// if [hasPreviousPage] of current data is true
+  /// [T] expects any data type
   Future<void> fetchPreviousPage<T>(String key) async {
     final initialData = getData<InfiniteRemoterData<T>>(key);
     final fn = functions[key];
@@ -219,6 +226,7 @@ class RemoterClient {
   }
 
   /// Triggers a background fetch for given [key] if there is at least 1 listener
+  /// [T] expects any data type
   Future<void> invalidateQuery<T>(String key) async {
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];
@@ -241,6 +249,7 @@ class RemoterClient {
 
   /// Retries failed query
   /// Query should have [status] of [RemoterStatus.error]
+  /// [T] expects any data type
   Future<void> retry<T>(String key) async {
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];
@@ -271,6 +280,7 @@ class RemoterClient {
 
   /// Sets data for entry with [key]
   /// Also notifies listeners with new state
+  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
   void setData<T extends BaseRemoterData>(String key, T data) {
     _dispatch(
       key,
@@ -279,6 +289,7 @@ class RemoterClient {
   }
 
   /// Return data from cache
+  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
   T? getData<T>(String key) {
     return _cache.getData<T>(key);
   }
@@ -326,6 +337,7 @@ class RemoterClient {
     _cache.close();
   }
 
+  /// [T] expects any data type
   Future<void> _fetchQuery<T>(String key, [RemoterData<T>? initialData]) async {
     final fn = functions[key];
     if (fn == null) return;
@@ -352,6 +364,7 @@ class RemoterClient {
     }
   }
 
+  /// [T] expects any data type
   Future<void> _fetchInfiniteQuery<T>(String key,
       [InfiniteRemoterData<T>? initialData]) async {
     final fn = functions[key];
@@ -375,6 +388,7 @@ class RemoterClient {
                   hasPreviousPage: Nullable(
                     pagefn?.getPreviousPageParam?.call(modifiedData) != null,
                   ),
+                  updatedAt: Nullable(clock.now()),
                 ) ??
                 InfiniteRemoterData<T>(
                   key: key,
@@ -406,6 +420,7 @@ class RemoterClient {
   }
 
   /// Stores data in cache and notifies listeners
+  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
   void _dispatch<T>(String key, T data) {
     _cacheStream.add(data);
     _cache.setEntry<T>(key, data);

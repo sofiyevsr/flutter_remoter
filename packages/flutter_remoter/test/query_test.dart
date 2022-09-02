@@ -40,7 +40,7 @@ void main() {
         execute: () async {
           return "data from execute";
         },
-        builder: (ctx, snapshot) => Text(snapshot.data ?? "null"),
+        builder: (ctx, snapshot, _) => Text(snapshot.data ?? "null"),
       ),
     ));
     expect(find.text("result"), findsOneWidget);
@@ -58,7 +58,7 @@ void main() {
         execute: () async {
           return "data from execute";
         },
-        builder: (ctx, snapshot) => Text(snapshot.data ?? "null"),
+        builder: (ctx, snapshot, _) => Text(snapshot.data ?? "null"),
       ),
     ));
     await tester.pumpAndSettle();
@@ -74,7 +74,7 @@ void main() {
         execute: () async {
           return "data from execute";
         },
-        builder: (ctx, snapshot) => Text(snapshot.data ?? "null"),
+        builder: (ctx, snapshot, _) => Text(snapshot.data ?? "null"),
       ),
     ));
     expect(find.text("null"), findsOneWidget);
@@ -91,7 +91,7 @@ void main() {
         execute: () async {
           return "data from execute";
         },
-        builder: (ctx, snapshot) => Text(snapshot.status.name),
+        builder: (ctx, snapshot, _) => Text(snapshot.status.name),
       ),
     ));
     expect(find.text("fetching"), findsOneWidget);
@@ -109,7 +109,8 @@ void main() {
         execute: () async {
           return count++;
         },
-        builder: (ctx, snapshot) => Text(snapshot.data?.toString() ?? "null"),
+        builder: (ctx, snapshot, _) =>
+            Text(snapshot.data?.toString() ?? "null"),
       ),
     ));
     expect(find.text("null"), findsOneWidget);

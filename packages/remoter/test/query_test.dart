@@ -4,6 +4,20 @@ import 'utils/run_fake_async.dart';
 
 void main() {
   group("simple apis", () {
+    test("set query data", () async {
+      final client = RemoterClient();
+      final stream = client.getStream<RemoterData<String>, String>("cache");
+      client.setData(
+        "cache",
+        RemoterData<String>(
+          key: "cache",
+          data: "result",
+          status: RemoterStatus.success,
+        ),
+      );
+      stream.listen(expectAsync1((value) => expect(value.data, "result")));
+    });
+
     test("retry works on query error status", () async {
       final client = RemoterClient();
       bool passError = false;
@@ -18,6 +32,7 @@ void main() {
       await client.retry("cache");
       expect(client.getData("cache")?.data, "test");
     });
+
     test("invalidate query works", () async {
       final client = RemoterClient();
       bool pass = false;
@@ -34,6 +49,7 @@ void main() {
       await client.invalidateQuery("cache");
       expect(client.getData("cache")?.data, "new");
     });
+
     test("is stale works", () async {
       final client = RemoterClient(
         options: RemoterClientOptions(staleTime: 1000),
@@ -46,6 +62,7 @@ void main() {
       });
     });
   });
+
   group("actions on listeners count", () {
     test("count is updated", () {
       final client = RemoterClient();
