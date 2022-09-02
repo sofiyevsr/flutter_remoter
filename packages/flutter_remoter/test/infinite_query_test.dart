@@ -40,7 +40,7 @@ void main() {
     await client.fetchInfinite<String>("cache", (_) async => "result");
     await tester.pumpWidget(App(
       client: client,
-      child: InfiniteRemoterQuery<String>(
+      child: RemoterInfiniteQuery<String>(
         remoterKey: "cache",
         execute: (_) async {
           return "data from execute";

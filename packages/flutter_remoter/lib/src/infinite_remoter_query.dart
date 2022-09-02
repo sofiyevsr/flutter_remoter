@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/flutter_remoter.dart';
 import 'package:remoter/remoter.dart';
 
-class InfiniteRemoterQuery<T> extends StatefulWidget {
+class RemoterInfiniteQuery<T> extends StatefulWidget {
   final String remoterKey;
   final FutureOr<T> Function(RemoterParam?) execute;
   final Widget Function(
@@ -12,25 +12,29 @@ class InfiniteRemoterQuery<T> extends StatefulWidget {
     InfiniteRemoterData<T>,
     RemoterInfiniteUtils utils,
   ) builder;
+  final Function(
+          InfiniteRemoterData<T> oldState, InfiniteRemoterData<T> newState)?
+      listener;
   final dynamic Function(List<T>)? getNextPageParam;
   final dynamic Function(List<T>)? getPreviousPageParam;
   final RemoterClientOptions? options;
-  const InfiniteRemoterQuery({
+  const RemoterInfiniteQuery({
     super.key,
     this.getPreviousPageParam,
     this.getNextPageParam,
     this.options,
+    this.listener,
     required this.remoterKey,
     required this.execute,
     required this.builder,
   });
 
   @override
-  State<InfiniteRemoterQuery<T>> createState() =>
+  State<RemoterInfiniteQuery<T>> createState() =>
       _InfiniteRemoterQueryState<T>();
 }
 
-class _InfiniteRemoterQueryState<T> extends State<InfiniteRemoterQuery<T>> {
+class _InfiniteRemoterQueryState<T> extends State<RemoterInfiniteQuery<T>> {
   StreamSubscription<InfiniteRemoterData<T>>? subscription;
   late InfiniteRemoterData<T> data;
 
@@ -53,6 +57,7 @@ class _InfiniteRemoterQueryState<T> extends State<InfiniteRemoterQuery<T>> {
         .getStream<InfiniteRemoterData<T>, T>(
             widget.remoterKey, widget.options?.cacheTime)
         .listen((event) {
+      if (widget.listener != null) widget.listener!(data, event);
       setState(() {
         data = event;
       });
@@ -74,7 +79,7 @@ class _InfiniteRemoterQueryState<T> extends State<InfiniteRemoterQuery<T>> {
   }
 
   @override
-  void didUpdateWidget(InfiniteRemoterQuery<T> oldWidget) {
+  void didUpdateWidget(RemoterInfiniteQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.remoterKey == widget.remoterKey) return;
     final newData = startStream();
