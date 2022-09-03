@@ -160,9 +160,12 @@ class RemoterClient {
             param
           ],
           data: mergedData,
-          hasNextPage: pageFunctions.getNextPageParam!(mergedData) != null,
+          hasNextPage: pageFunctions.getNextPageParam?.call(mergedData) != null,
+          hasPreviousPage:
+              pageFunctions.getPreviousPageParam?.call(mergedData) != null,
           status: RemoterStatus.success,
           isFetchingNextPage: false,
+          updatedAt: initialData.updatedAt,
         ),
       );
     } catch (error) {
@@ -211,10 +214,12 @@ class RemoterClient {
             ...(initialData.pageParams ?? [null])
           ],
           data: mergedData,
+          hasNextPage: pageFunctions.getNextPageParam?.call(mergedData) != null,
           hasPreviousPage:
-              pageFunctions.getPreviousPageParam!(mergedData) != null,
+              pageFunctions.getPreviousPageParam?.call(mergedData) != null,
           status: RemoterStatus.success,
           isFetchingPreviousPage: false,
+          updatedAt: initialData.updatedAt,
         ),
       );
     } catch (error) {
@@ -405,13 +410,13 @@ class RemoterClient {
                 ),
           );
         } catch (error) {
-          if (initialData == null || initialData.pageParams?.length == 1) {
+          if (initialData == null) {
             _dispatch(
               key,
               InfiniteRemoterData<T>(
                 key: key,
-                pageParams: initialData?.pageParams,
-                data: initialData?.data,
+                pageParams: null,
+                data: null,
                 status: RemoterStatus.error,
                 error: error,
               ),

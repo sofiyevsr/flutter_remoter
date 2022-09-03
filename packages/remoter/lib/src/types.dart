@@ -1,5 +1,6 @@
 import 'package:clock/clock.dart';
 
+/// Both [staleTime] and [cacheTime] should be in millisecons
 class RemoterClientOptions {
   final int staleTime;
   final int cacheTime;
