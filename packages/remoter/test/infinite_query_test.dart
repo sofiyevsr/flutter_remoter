@@ -39,7 +39,7 @@ void main() {
     final client = RemoterClient();
     client.saveInfiniteQueryFunctions(
       "cache",
-      InfiniteQueryFunctions(getPreviousPageParam: (pages) => "previous"),
+      InfiniteQueryFunctions<String>(getPreviousPageParam: (pages) => "previous"),
     );
     await client.fetchInfinite<String>("cache", (param) {
       return param?.value ?? "default";
@@ -53,7 +53,7 @@ void main() {
     final client = RemoterClient();
     client.saveInfiniteQueryFunctions(
       "cache",
-      InfiniteQueryFunctions(getNextPageParam: (pages) => "next"),
+      InfiniteQueryFunctions<String>(getNextPageParam: (pages) => "next"),
     );
     await client.fetchInfinite<String>("cache", (param) {
       return param?.value ?? "default";
@@ -68,7 +68,7 @@ void main() {
     int? page = 1;
     client.saveInfiniteQueryFunctions(
       "cache",
-      InfiniteQueryFunctions(getNextPageParam: (pages) {
+      InfiniteQueryFunctions<String>(getNextPageParam: (pages) {
         final temp = page;
         page = null;
         return temp;
@@ -94,7 +94,7 @@ void main() {
     int? page = 1;
     client.saveInfiniteQueryFunctions(
       "cache",
-      InfiniteQueryFunctions(getPreviousPageParam: (pages) {
+      InfiniteQueryFunctions<String>(getPreviousPageParam: (pages) {
         final temp = page;
         page = null;
         return temp;
