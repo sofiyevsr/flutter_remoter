@@ -39,7 +39,8 @@ void main() {
     final client = RemoterClient();
     client.saveInfiniteQueryFunctions(
       "cache",
-      InfiniteQueryFunctions<String>(getPreviousPageParam: (pages) => "previous"),
+      InfiniteQueryFunctions<String>(
+          getPreviousPageParam: (pages) => "previous"),
     );
     await client.fetchInfinite<String>("cache", (param) {
       return param?.value ?? "default";
