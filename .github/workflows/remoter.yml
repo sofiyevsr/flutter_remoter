@@ -11,7 +11,7 @@ on:
       - '.github/workflows/remoter.yml'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@stable
+      - uses: dart-lang/setup-dart@v1.3
 
       - name: Install dependencies
         run: dart pub get
