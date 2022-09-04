@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remoter/src/infinite_remoter_query.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter_remoter/flutter_remoter.dart';
@@ -33,10 +32,6 @@ class _AppState extends State<App> {
 void main() {
   testWidgets('renders initial data on startup', (tester) async {
     final client = RemoterClient();
-    client.saveInfiniteQueryFunctions(
-      "cache",
-      InfiniteQueryFunctions(getNextPageParam: (pages) => "next"),
-    );
     await client.fetchInfinite<String>("cache", (_) async => "result");
     await tester.pumpWidget(App(
       client: client,
