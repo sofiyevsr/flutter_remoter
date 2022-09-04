@@ -1,0 +1,41 @@
+name: Flutter Remoter
+
+on:
+  push:
+    paths:
+      - "packages/flutter_remoter/**"
+      - ".github/workflows/flutter_remoter.yml"
+  pull_request:
+    paths:
+      - "packages/flutter_remoter/**"
+      - ".github/workflows/flutter_remoter.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/flutter_remoter
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: flutter format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: flutter analyze --fatal-infos .
+
+      - name: Run tests
+        run: flutter test --coverage .
+
+      - name: Upload coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: packages/flutter_remoter/coverage/lcov.info
+          language: dart

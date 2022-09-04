@@ -1,5 +1,6 @@
 <p align="center">
   <a href="https://www.codacy.com/gh/sofiyevsr/remoter/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sofiyevsr/remoter&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/b54f20951646419e83f875089eb13daa"/></a>
+  <a href="https://www.codacy.com/gh/sofiyevsr/remoter/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sofiyevsr/remoter&amp;utm_campaign=Badge_Coverage"><img src="https://app.codacy.com/project/badge/Coverage/b54f20951646419e83f875089eb13daa"/></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
 </p>
 
