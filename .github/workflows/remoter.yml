@@ -1,0 +1,43 @@
+name: Remoter
+
+on:
+  push:
+    paths:
+      - 'packages/remoter/**'
+      - '.github/workflows/remoter.yml'
+  pull_request:
+    paths:
+      - 'packages/remoter/**'
+      - '.github/workflows/remoter.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/remoter
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@stable
+
+      - name: Install dependencies
+        run: dart pub get
+        
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: dart analyze --fatal-infos .
+
+      - name: Run tests
+        run: |
+          dart pub global activate coverage
+          dart pub global run coverage:test_with_coverage
+        
+      - name: Upload coverage to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: ./coverage/lcov.info
+          language: dart
