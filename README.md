@@ -4,6 +4,8 @@
 
 ---
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7263d04b5fa949cba8495a1869da96dd)](https://app.codacy.com/gh/sofiyevsr/remoter?utm_source=github.com&utm_medium=referral&utm_content=sofiyevsr/remoter&utm_campaign=Badge_Grade_Settings)
+
 Remoter aims to simplify handling asynchronous operations and revalidating them, inspired by [React Query](https://github.com/TanStack/query)
 
 ## Features
