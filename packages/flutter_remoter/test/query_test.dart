@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -119,5 +121,63 @@ void main() {
     await client.invalidateQuery<int>("cache");
     await tester.pumpAndSettle();
     expect(find.text("1"), findsOneWidget);
+  });
+
+  testWidgets('listener is called with old and new state', (tester) async {
+    final client = RemoterClient();
+    final controller = StreamController<List<String?>>();
+    await tester.pumpWidget(App(
+      client: client,
+      child: RemoterQuery<String>(
+        remoterKey: "cache",
+        listener: (o, n) {
+          controller.add([o.data, n.data]);
+          controller.close();
+        },
+        execute: () {
+          return "result";
+        },
+        builder: (ctx, snapshot, _) =>
+            Text(snapshot.data?.toString() ?? "null"),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(
+      controller.stream,
+      emitsInAnyOrder([
+        [null, "result"],
+        emitsDone
+      ]),
+    );
+  });
+
+  testWidgets('query won\'t start unless disable is false', (tester) async {
+    final client = RemoterClient();
+    final streamController = StreamController<bool>();
+    await tester.pumpWidget(App(
+      client: client,
+      child: StreamBuilder<bool>(
+          initialData: true,
+          stream: streamController.stream,
+          builder: (context, snapshot) {
+            return RemoterQuery<String>(
+              remoterKey: "cache",
+              disabled: snapshot.data,
+              execute: () async {
+                return "data from execute";
+              },
+              builder: (ctx, snapshot, utils) {
+                if (snapshot.status == RemoterStatus.idle) {
+                  return const Text("idle");
+                }
+                return Text(snapshot.data ?? "null");
+              },
+            );
+          }),
+    ));
+    expect(find.text("idle"), findsOneWidget);
+    streamController.sink.add(false);
+    await tester.pumpAndSettle();
+    expect(find.text("data from execute"), findsOneWidget);
   });
 }

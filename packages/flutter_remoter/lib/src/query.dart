@@ -12,10 +12,12 @@ class RemoterQuery<T> extends StatefulWidget {
       builder;
   final Function(RemoterData<T> oldState, RemoterData<T> newState)? listener;
   final RemoterClientOptions? options;
+  final bool? disabled;
   const RemoterQuery({
     super.key,
     this.listener,
     this.options,
+    this.disabled,
     required this.remoterKey,
     required this.execute,
     required this.builder,
@@ -26,6 +28,7 @@ class RemoterQuery<T> extends StatefulWidget {
 }
 
 class RemoterQueryState<T> extends State<RemoterQuery<T>> {
+  bool startupDone = false;
   StreamSubscription<RemoterData<T>>? subscription;
   late RemoterData<T> data;
   late RemoterQueryUtils<RemoterData<T>> utils;
@@ -43,6 +46,13 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
 
   RemoterData<T> startStream() {
     subscription?.cancel();
+    if (widget.disabled == true) {
+      return RemoterData<T>(
+        key: widget.remoterKey,
+        data: null,
+        status: RemoterStatus.idle,
+      );
+    }
     final provider = RemoterProvider.of(context);
     provider.client.fetch<T>(
       widget.remoterKey,
@@ -71,9 +81,10 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (subscription != null) return;
+    if (startupDone == true) return;
     data = startStream();
     utils = processUtils();
+    startupDone = true;
   }
 
   @override
@@ -94,11 +105,5 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.builder(
-      context,
-      data,
-      utils,
-    );
-  }
+  Widget build(BuildContext context) => widget.builder(context, data, utils);
 }

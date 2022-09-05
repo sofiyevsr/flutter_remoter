@@ -18,12 +18,14 @@ class PaginatedRemoterQuery<T> extends StatefulWidget {
   final dynamic Function(List<T>)? getNextPageParam;
   final dynamic Function(List<T>)? getPreviousPageParam;
   final RemoterClientOptions? options;
+  final bool? disabled;
   const PaginatedRemoterQuery({
     super.key,
     this.getPreviousPageParam,
     this.getNextPageParam,
     this.options,
     this.listener,
+    this.disabled,
     required this.remoterKey,
     required this.execute,
     required this.builder,
@@ -35,6 +37,7 @@ class PaginatedRemoterQuery<T> extends StatefulWidget {
 }
 
 class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
+  bool startupDone = false;
   StreamSubscription<PaginatedRemoterData<T>>? subscription;
   late PaginatedRemoterData<T> data;
   late RemoterPaginatedUtils<PaginatedRemoterData<T>> utils;
@@ -55,6 +58,14 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
 
   PaginatedRemoterData<T> startStream() {
     subscription?.cancel();
+    if (widget.disabled == true) {
+      return PaginatedRemoterData<T>(
+        key: widget.remoterKey,
+        data: null,
+        pageParams: null,
+        status: RemoterStatus.idle,
+      );
+    }
     final provider = RemoterProvider.of(context);
     provider.client.savePaginatedQueryFunctions(
       widget.remoterKey,
@@ -90,9 +101,10 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (subscription != null) return;
+    if (startupDone == true) return;
     data = startStream();
     utils = processUtils();
+    startupDone = true;
   }
 
   @override
@@ -113,7 +125,5 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.builder(context, data, utils);
-  }
+  Widget build(BuildContext context) => widget.builder(context, data, utils);
 }

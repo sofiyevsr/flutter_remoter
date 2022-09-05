@@ -82,7 +82,12 @@ class MyApp extends StatelessWidget {
           execute: (param) async {
             // Fetch data here
           },
+          // Query won't start if this is true
+          disabled: false,
           builder: (context, snapshot, utils) {
+            if (snapshot.status == RemoterStatus.idle) {
+              // You can skip this check if you don't use disabled parameter
+            }
             if (snapshot.status == RemoterStatus.fetching) {
               // Handle fetching state here
             }
