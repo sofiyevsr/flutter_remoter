@@ -37,6 +37,21 @@ class RemoterPaginatedQuery<T> extends StatefulWidget {
 class _PaginatedRemoterQueryState<T> extends State<RemoterPaginatedQuery<T>> {
   StreamSubscription<PaginatedRemoterData<T>>? subscription;
   late PaginatedRemoterData<T> data;
+  late RemoterPaginatedUtils<PaginatedRemoterData<T>> utils;
+
+  RemoterPaginatedUtils<PaginatedRemoterData<T>> processUtils() {
+    final remoter = RemoterProvider.of(context);
+    return RemoterPaginatedUtils<PaginatedRemoterData<T>>(
+      fetchNextPage: () => remoter.client.fetchNextPage<T>(widget.remoterKey),
+      fetchPreviousPage: () =>
+          remoter.client.fetchPreviousPage<T>(widget.remoterKey),
+      invalidateQuery: () =>
+          remoter.client.invalidateQuery<T>(widget.remoterKey),
+      retry: () => remoter.client.retry<T>(widget.remoterKey),
+      setData: (data) => remoter.client
+          .setData<PaginatedRemoterData<T>>(widget.remoterKey, data),
+    );
+  }
 
   PaginatedRemoterData<T> startStream() {
     subscription?.cancel();
@@ -62,7 +77,8 @@ class _PaginatedRemoterQueryState<T> extends State<RemoterPaginatedQuery<T>> {
         data = event;
       });
     });
-    return provider.client.getData<PaginatedRemoterData<T>>(widget.remoterKey) ??
+    return provider.client
+            .getData<PaginatedRemoterData<T>>(widget.remoterKey) ??
         PaginatedRemoterData<T>(
           key: widget.remoterKey,
           data: null,
@@ -76,15 +92,17 @@ class _PaginatedRemoterQueryState<T> extends State<RemoterPaginatedQuery<T>> {
     super.didChangeDependencies();
     if (subscription != null) return;
     data = startStream();
+    utils = processUtils();
   }
 
   @override
   void didUpdateWidget(RemoterPaginatedQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.remoterKey == widget.remoterKey) return;
     final newData = startStream();
+    final newUtils = processUtils();
     setState(() {
       data = newData;
+      utils = newUtils;
     });
   }
 
@@ -96,17 +114,6 @@ class _PaginatedRemoterQueryState<T> extends State<RemoterPaginatedQuery<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final remoter = RemoterProvider.of(context);
-    final utils = RemoterPaginatedUtils<PaginatedRemoterData<T>>(
-      fetchNextPage: () => remoter.client.fetchNextPage<T>(widget.remoterKey),
-      fetchPreviousPage: () =>
-          remoter.client.fetchPreviousPage<T>(widget.remoterKey),
-      invalidateQuery: () =>
-          remoter.client.invalidateQuery<T>(widget.remoterKey),
-      retry: () => remoter.client.retry<T>(widget.remoterKey),
-      setData: (data) => remoter.client
-          .setData<PaginatedRemoterData<T>>(widget.remoterKey, data),
-    );
     return widget.builder(context, data, utils);
   }
 }

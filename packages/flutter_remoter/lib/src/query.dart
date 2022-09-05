@@ -28,8 +28,20 @@ class RemoterQuery<T> extends StatefulWidget {
 class RemoterQueryState<T> extends State<RemoterQuery<T>> {
   StreamSubscription<RemoterData<T>>? subscription;
   late RemoterData<T> data;
+  late RemoterQueryUtils<RemoterData<T>> utils;
 
-  RemoterData<T> _startStream() {
+  RemoterQueryUtils<RemoterData<T>> processUtils() {
+    final remoter = RemoterProvider.of(context);
+    return RemoterQueryUtils<RemoterData<T>>(
+      invalidateQuery: () =>
+          remoter.client.invalidateQuery<T>(widget.remoterKey),
+      retry: () => remoter.client.retry<T>(widget.remoterKey),
+      setData: (data) =>
+          remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
+    );
+  }
+
+  RemoterData<T> startStream() {
     subscription?.cancel();
     final provider = RemoterProvider.of(context);
     provider.client.fetch<T>(
@@ -60,16 +72,18 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (subscription != null) return;
-    data = _startStream();
+    data = startStream();
+    utils = processUtils();
   }
 
   @override
   void didUpdateWidget(RemoterQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.remoterKey == widget.remoterKey) return;
-    final newData = _startStream();
+    final newData = startStream();
+    final newUtils = processUtils();
     setState(() {
       data = newData;
+      utils = newUtils;
     });
   }
 
@@ -81,14 +95,6 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final remoter = RemoterProvider.of(context);
-    final utils = RemoterQueryUtils<RemoterData<T>>(
-      invalidateQuery: () =>
-          remoter.client.invalidateQuery<T>(widget.remoterKey),
-      retry: () => remoter.client.retry<T>(widget.remoterKey),
-      setData: (data) =>
-          remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
-    );
     return widget.builder(
       context,
       data,
