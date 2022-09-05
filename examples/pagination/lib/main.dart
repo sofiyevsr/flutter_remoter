@@ -55,7 +55,7 @@ class MyHomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: RemoterPaginatedQuery<FactsPage>(
+      body: PaginatedRemoterQuery<FactsPage>(
           remoterKey: "facts",
           getNextPageParam: (pages) {
             return pages[pages.length - 1].nextPage;

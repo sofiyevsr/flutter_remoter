@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/flutter_remoter.dart';
 import 'package:remoter/remoter.dart';
 
-class RemoterPaginatedQuery<T> extends StatefulWidget {
+class PaginatedRemoterQuery<T> extends StatefulWidget {
   final String remoterKey;
   final FutureOr<T> Function(RemoterParam?) execute;
   final Widget Function(
@@ -18,7 +18,7 @@ class RemoterPaginatedQuery<T> extends StatefulWidget {
   final dynamic Function(List<T>)? getNextPageParam;
   final dynamic Function(List<T>)? getPreviousPageParam;
   final RemoterClientOptions? options;
-  const RemoterPaginatedQuery({
+  const PaginatedRemoterQuery({
     super.key,
     this.getPreviousPageParam,
     this.getNextPageParam,
@@ -30,11 +30,11 @@ class RemoterPaginatedQuery<T> extends StatefulWidget {
   });
 
   @override
-  State<RemoterPaginatedQuery<T>> createState() =>
+  State<PaginatedRemoterQuery<T>> createState() =>
       _PaginatedRemoterQueryState<T>();
 }
 
-class _PaginatedRemoterQueryState<T> extends State<RemoterPaginatedQuery<T>> {
+class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
   StreamSubscription<PaginatedRemoterData<T>>? subscription;
   late PaginatedRemoterData<T> data;
   late RemoterPaginatedUtils<PaginatedRemoterData<T>> utils;
@@ -96,7 +96,7 @@ class _PaginatedRemoterQueryState<T> extends State<RemoterPaginatedQuery<T>> {
   }
 
   @override
-  void didUpdateWidget(RemoterPaginatedQuery<T> oldWidget) {
+  void didUpdateWidget(PaginatedRemoterQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     final newData = startStream();
     final newUtils = processUtils();

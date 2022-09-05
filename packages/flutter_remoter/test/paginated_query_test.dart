@@ -35,7 +35,7 @@ void main() {
     await client.fetchPaginated<String>("cache", (_) async => "result");
     await tester.pumpWidget(App(
       client: client,
-      child: RemoterPaginatedQuery<String>(
+      child: PaginatedRemoterQuery<String>(
         remoterKey: "cache",
         execute: (_) async {
           return "data from execute";
