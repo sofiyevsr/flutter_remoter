@@ -1,9 +1,11 @@
+import 'dart:async';
+
 class RemoterPaginatedUtils<T> {
-  final Function() fetchNextPage;
-  final Function() fetchPreviousPage;
-  final Function() invalidateQuery;
-  final Function() retry;
-  final Function(T data) setData;
+  final FutureOr Function() fetchNextPage;
+  final FutureOr Function() fetchPreviousPage;
+  final FutureOr Function() invalidateQuery;
+  final FutureOr Function() retry;
+  final FutureOr Function(T data) setData;
   RemoterPaginatedUtils({
     required this.fetchNextPage,
     required this.fetchPreviousPage,
@@ -14,9 +16,9 @@ class RemoterPaginatedUtils<T> {
 }
 
 class RemoterQueryUtils<T> {
-  final Function() invalidateQuery;
-  final Function() retry;
-  final Function(T data) setData;
+  final FutureOr Function() invalidateQuery;
+  final FutureOr Function() retry;
+  final FutureOr Function(T data) setData;
   RemoterQueryUtils({
     required this.invalidateQuery,
     required this.retry,

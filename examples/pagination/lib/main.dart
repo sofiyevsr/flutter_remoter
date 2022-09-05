@@ -103,7 +103,7 @@ class MyHomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (snapshot.data![0].previousPage != null)
+                    if (snapshot.hasPreviousPage)
                       Container(
                         alignment: Alignment.center,
                         child: ElevatedButton(
@@ -137,8 +137,7 @@ class MyHomePage extends StatelessWidget {
                           ),
                         )
                         .toList(),
-                    if (snapshot.data![snapshot.data!.length - 1].nextPage !=
-                        null)
+                    if (snapshot.hasNextPage)
                       Container(
                         alignment: Alignment.center,
                         child: ElevatedButton(

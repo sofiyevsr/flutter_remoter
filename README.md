@@ -98,7 +98,7 @@ class MyApp extends StatelessWidget {
             return SingleChildScrollView(
               child: Column(
                 children: [
-                  if (snapshot.data![0].previousPage != null)
+                  if (snapshot.hasPreviousPage)
                     ElevatedButton(
                       onPressed: () {
                         utils.fetchPreviousPage();
@@ -115,8 +115,7 @@ class MyApp extends StatelessWidget {
                         (d) => Text(d.fact),
                       )
                       .toList(),
-                  if (snapshot.data![snapshot.data!.length - 1].nextPage !=
-                      null)
+                  if (snapshot.hasNextPage)
                     ElevatedButton(
                       onPressed: () {
                         utils.fetchNextPage();
