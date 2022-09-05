@@ -23,12 +23,11 @@ class RemoterClient {
   final Map<String, PaginatedQueryFunctions> paginatedQueryFunctions = {};
 
   /// Storage for all data
-  final RemoterCache _cache;
+  final RemoterCache _cache = RemoterCache();
   final StreamController _cacheStream = StreamController.broadcast();
 
   RemoterClient({RemoterClientOptions? options})
-      : options = options ?? RemoterClientOptions(),
-        _cache = RemoterCache();
+      : options = options ?? RemoterClientOptions();
 
   /// Returns new [Stream] which gets cache entry if exists as first data
   /// [T] expects [RemoterData] or [PaginatedRemoterData] type
