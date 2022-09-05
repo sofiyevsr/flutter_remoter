@@ -20,7 +20,7 @@ class RemoterClient {
   final Map<String, FetchFunction> functions = {};
 
   /// Function defining parameters to get data for new pages
-  final Map<String, PaginatedQueryFunctions> infiniteQueryFunctions = {};
+  final Map<String, PaginatedQueryFunctions> paginatedQueryFunctions = {};
 
   /// Storage for all data
   final RemoterCache _cache;
@@ -58,12 +58,12 @@ class RemoterClient {
     return stream;
   }
 
-  /// Stores functions for infinite queries of how to fetch new pages
+  /// Stores functions for paginated queries of how to fetch new pages
   void savePaginatedQueryFunctions(
     String key,
     PaginatedQueryFunctions functions,
   ) {
-    infiniteQueryFunctions[key] = functions;
+    paginatedQueryFunctions[key] = functions;
   }
 
   /// Executes given function and stores result in cache as entry with [key]
@@ -134,7 +134,7 @@ class RemoterClient {
     final initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
-        infiniteQueryFunctions[key] as PaginatedQueryFunctions<T>?;
+        paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getNextPageParam == null ||
         initialData?.hasNextPage == false ||
@@ -187,7 +187,7 @@ class RemoterClient {
     final initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
-        infiniteQueryFunctions[key] as PaginatedQueryFunctions<T>?;
+        paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getPreviousPageParam == null ||
         initialData?.data == null ||
@@ -341,7 +341,7 @@ class RemoterClient {
   void dispose() {
     listeners.clear();
     functions.clear();
-    infiniteQueryFunctions.clear();
+    paginatedQueryFunctions.clear();
     _cacheStream.close();
     _cache.close();
   }
@@ -377,7 +377,7 @@ class RemoterClient {
   Future<void> _fetchPaginatedQuery<T>(String key,
       [PaginatedRemoterData<T>? initialData]) async {
     final fn = functions[key];
-    final pagefn = infiniteQueryFunctions[key] as PaginatedQueryFunctions<T>?;
+    final pagefn = paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null) return;
     final pageParams = initialData?.pageParams ?? [null];
     final List<Future<void>> futures = [];
