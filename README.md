@@ -16,13 +16,13 @@ Remoter aims to simplify handling asynchronous operations and revalidating them,
 
 ## Features
 
--  Global and individual options
--  Cache is collected after cache time if there is no listener
--  Query is refetched if query is stale
--  Fetch only once when multiple widget mounts at the same time
--  Pagination
--  Invalidate query
--  Set query data manually
+- Global and individual options
+- Cache is collected after cache time if there is no listener
+- Query is refetched if query is stale
+- Fetch only once when multiple widget mounts at the same time
+- Pagination
+- Invalidate query
+- Set query data manually
 
 ## Getting started
 
