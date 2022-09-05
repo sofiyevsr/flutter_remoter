@@ -137,6 +137,7 @@ class RemoterClient {
         paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getNextPageParam == null ||
+        initialData?.isFetchingNextPage == true ||
         initialData?.hasNextPage == false ||
         initialData?.data == null ||
         initialData?.status != RemoterStatus.success) {
@@ -190,8 +191,9 @@ class RemoterClient {
         paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getPreviousPageParam == null ||
-        initialData?.data == null ||
+        initialData?.isFetchingPreviousPage == true ||
         initialData?.hasPreviousPage == false ||
+        initialData?.data == null ||
         initialData?.status != RemoterStatus.success) {
       return;
     }
