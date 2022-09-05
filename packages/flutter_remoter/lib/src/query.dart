@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_remoter/src/remoter_provider.dart';
+import 'package:flutter_remoter/src/provider.dart';
 import 'package:flutter_remoter/src/types.dart';
 import 'package:remoter/remoter.dart';
 

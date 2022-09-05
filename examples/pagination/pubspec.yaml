@@ -1,5 +1,5 @@
 name: pagination
-description: A simple pagination example for InfiniteRemoterQuery
+description: A simple pagination example for PaginatedRemoterQuery
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 

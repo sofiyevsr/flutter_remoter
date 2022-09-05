@@ -1,10 +1,10 @@
-class RemoterInfiniteUtils<T> {
+class RemoterPaginatedUtils<T> {
   final Function() fetchNextPage;
   final Function() fetchPreviousPage;
   final Function() invalidateQuery;
   final Function() retry;
   final Function(T data) setData;
-  RemoterInfiniteUtils({
+  RemoterPaginatedUtils({
     required this.fetchNextPage,
     required this.fetchPreviousPage,
     required this.invalidateQuery,

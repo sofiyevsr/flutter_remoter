@@ -68,7 +68,7 @@ class MyApp extends StatelessWidget {
 > See [full example](https://github.com/sofiyevsr/remoter/tree/master/examples/pagination)
 
 ```dart
-    RemoterInfiniteQuery<FactsPage>(
+    PaginatedRemoterQuery<FactsPage>(
           // remoterKey should be unique
           remoterKey: "facts",
           // Data returned from these functions will be passed
@@ -128,9 +128,3 @@ class MyApp extends StatelessWidget {
           })
 
 ```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.

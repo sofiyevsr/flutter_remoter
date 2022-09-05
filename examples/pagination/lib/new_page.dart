@@ -21,7 +21,7 @@ class NewPage extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           Expanded(
-            child: RemoterInfiniteQuery<FactsPage>(
+            child: RemoterPaginatedQuery<FactsPage>(
                 remoterKey: "facts",
                 getNextPageParam: (pages) {
                   return pages[pages.length - 1].nextPage;

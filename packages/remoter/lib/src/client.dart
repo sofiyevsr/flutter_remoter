@@ -20,7 +20,7 @@ class RemoterClient {
   final Map<String, FetchFunction> functions = {};
 
   /// Function defining parameters to get data for new pages
-  final Map<String, InfiniteQueryFunctions> infiniteQueryFunctions = {};
+  final Map<String, PaginatedQueryFunctions> infiniteQueryFunctions = {};
 
   /// Storage for all data
   final RemoterCache _cache;
@@ -31,7 +31,7 @@ class RemoterClient {
         _cache = RemoterCache();
 
   /// Returns new [Stream] which gets cache entry if exists as first data
-  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
+  /// [T] expects [RemoterData] or [PaginatedRemoterData] type
   Stream<T> getStream<T extends BaseRemoterData, S>(String key,
       [int? cacheTime]) {
     T? cachedValue = _cache.getData<T>(key);
@@ -59,9 +59,9 @@ class RemoterClient {
   }
 
   /// Stores functions for infinite queries of how to fetch new pages
-  void saveInfiniteQueryFunctions(
+  void savePaginatedQueryFunctions(
     String key,
-    InfiniteQueryFunctions functions,
+    PaginatedQueryFunctions functions,
   ) {
     infiniteQueryFunctions[key] = functions;
   }
@@ -100,9 +100,9 @@ class RemoterClient {
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
   /// [T] expects any data type
-  Future<void> fetchInfinite<T>(String key, FetchFunction fn,
+  Future<void> fetchPaginated<T>(String key, FetchFunction fn,
       [int? staleTime]) async {
-    final initialData = getData<InfiniteRemoterData<T>>(key);
+    final initialData = getData<PaginatedRemoterData<T>>(key);
     functions[key] = fn;
 
     /// Fetch is in progress already
@@ -124,17 +124,17 @@ class RemoterClient {
         return _dispatch(key, initialData);
       }
     }
-    _fetchInfiniteQuery<T>(key, initialData);
+    _fetchPaginatedQuery<T>(key, initialData);
   }
 
   /// Fetches next page of data with [key]
   /// if [hasNextPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchNextPage<T>(String key) async {
-    final initialData = getData<InfiniteRemoterData<T>>(key);
+    final initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
-        infiniteQueryFunctions[key] as InfiniteQueryFunctions<T>?;
+        infiniteQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getNextPageParam == null ||
         initialData?.hasNextPage == false ||
@@ -153,7 +153,7 @@ class RemoterClient {
       final mergedData = [...initialData.data!, data as T];
       _dispatch(
         key,
-        InfiniteRemoterData<T>(
+        PaginatedRemoterData<T>(
           key: key,
           pageParams: [
             ...(initialData.pageParams ?? [null]),
@@ -184,10 +184,10 @@ class RemoterClient {
   /// if [hasPreviousPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchPreviousPage<T>(String key) async {
-    final initialData = getData<InfiniteRemoterData<T>>(key);
+    final initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
-        infiniteQueryFunctions[key] as InfiniteQueryFunctions<T>?;
+        infiniteQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null ||
         pageFunctions?.getPreviousPageParam == null ||
         initialData?.data == null ||
@@ -207,7 +207,7 @@ class RemoterClient {
       final mergedData = [data as T, ...initialData.data!];
       _dispatch(
         key,
-        InfiniteRemoterData<T>(
+        PaginatedRemoterData<T>(
           key: key,
           pageParams: [
             param,
@@ -246,13 +246,13 @@ class RemoterClient {
         (initialData as RemoterData).copyWith(isRefetching: Nullable(true)),
       );
       _fetchQuery<T>(key, (initialData as RemoterData<T>));
-    } else if (initialData is InfiniteRemoterData) {
+    } else if (initialData is PaginatedRemoterData) {
       _dispatch(
         key,
-        (initialData as InfiniteRemoterData)
+        (initialData as PaginatedRemoterData)
             .copyWith(isRefetching: Nullable(true)),
       );
-      _fetchInfiniteQuery<T>(key, (initialData as InfiniteRemoterData<T>));
+      _fetchPaginatedQuery<T>(key, (initialData as PaginatedRemoterData<T>));
     }
   }
 
@@ -276,20 +276,20 @@ class RemoterClient {
     } else {
       _dispatch(
         key,
-        InfiniteRemoterData<T>(
+        PaginatedRemoterData<T>(
           key: key,
           data: null,
           pageParams: null,
           status: RemoterStatus.fetching,
         ),
       );
-      _fetchInfiniteQuery<T>(key);
+      _fetchPaginatedQuery<T>(key);
     }
   }
 
   /// Sets data for entry with [key]
   /// Also notifies listeners with new state
-  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
+  /// [T] expects [RemoterData] or [PaginatedRemoterData] type
   void setData<T extends BaseRemoterData>(String key, T data) {
     _dispatch(
       key,
@@ -298,7 +298,7 @@ class RemoterClient {
   }
 
   /// Return data from cache
-  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
+  /// [T] expects [RemoterData] or [PaginatedRemoterData] type
   T? getData<T>(String key) {
     return _cache.getData<T>(key);
   }
@@ -374,10 +374,10 @@ class RemoterClient {
   }
 
   /// [T] expects any data type
-  Future<void> _fetchInfiniteQuery<T>(String key,
-      [InfiniteRemoterData<T>? initialData]) async {
+  Future<void> _fetchPaginatedQuery<T>(String key,
+      [PaginatedRemoterData<T>? initialData]) async {
     final fn = functions[key];
-    final pagefn = infiniteQueryFunctions[key] as InfiniteQueryFunctions<T>?;
+    final pagefn = infiniteQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null) return;
     final pageParams = initialData?.pageParams ?? [null];
     final List<Future<void>> futures = [];
@@ -399,7 +399,7 @@ class RemoterClient {
                   ),
                   updatedAt: Nullable(clock.now()),
                 ) ??
-                InfiniteRemoterData<T>(
+                PaginatedRemoterData<T>(
                   key: key,
                   pageParams: [null],
                   data: [data],
@@ -413,7 +413,7 @@ class RemoterClient {
           if (initialData == null) {
             _dispatch(
               key,
-              InfiniteRemoterData<T>(
+              PaginatedRemoterData<T>(
                 key: key,
                 pageParams: null,
                 data: null,
@@ -429,7 +429,7 @@ class RemoterClient {
   }
 
   /// Stores data in cache and notifies listeners
-  /// [T] expects [RemoterData] or [InfiniteRemoterData] type
+  /// [T] expects [RemoterData] or [PaginatedRemoterData] type
   void _dispatch<T>(String key, T data) {
     _cacheStream.add(data);
     _cache.setEntry<T>(key, data);

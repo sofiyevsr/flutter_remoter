@@ -78,7 +78,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
       );
 }
 
-class InfiniteRemoterData<T> extends BaseRemoterData<T> {
+class PaginatedRemoterData<T> extends BaseRemoterData<T> {
   final List<RemoterParam?>? pageParams;
   final List<T>? data;
   final bool isFetchingNextPage;
@@ -87,7 +87,7 @@ class InfiniteRemoterData<T> extends BaseRemoterData<T> {
   final bool isNextPageError;
   final bool hasNextPage;
   final bool hasPreviousPage;
-  InfiniteRemoterData({
+  PaginatedRemoterData({
     required super.key,
     required this.data,
     required this.pageParams,
@@ -107,7 +107,7 @@ class InfiniteRemoterData<T> extends BaseRemoterData<T> {
         isNextPageError = isNextPageError ?? false,
         hasPreviousPage = hasPreviousPage ?? false,
         hasNextPage = hasNextPage ?? false;
-  InfiniteRemoterData<T> copyWith({
+  PaginatedRemoterData<T> copyWith({
     String? key,
     Nullable<List<T>>? data,
     Nullable<List<RemoterParam?>>? pageParams,
@@ -122,7 +122,7 @@ class InfiniteRemoterData<T> extends BaseRemoterData<T> {
     Nullable<bool>? hasPreviousPage,
     Nullable<bool>? hasNextPage,
   }) =>
-      InfiniteRemoterData<T>(
+      PaginatedRemoterData<T>(
         key: key ?? this.key,
         data: data == null ? this.data : data.value,
         pageParams: pageParams == null ? this.pageParams : pageParams.value,
@@ -169,10 +169,10 @@ class CacheEvent<T> {
   }
 }
 
-class InfiniteQueryFunctions<T> {
+class PaginatedQueryFunctions<T> {
   final dynamic Function(List<T> pages)? getPreviousPageParam;
   final dynamic Function(List<T> pages)? getNextPageParam;
-  InfiniteQueryFunctions({
+  PaginatedQueryFunctions({
     this.getPreviousPageParam,
     this.getNextPageParam,
   });

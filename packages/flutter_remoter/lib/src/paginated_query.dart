@@ -4,21 +4,21 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/flutter_remoter.dart';
 import 'package:remoter/remoter.dart';
 
-class RemoterInfiniteQuery<T> extends StatefulWidget {
+class RemoterPaginatedQuery<T> extends StatefulWidget {
   final String remoterKey;
   final FutureOr<T> Function(RemoterParam?) execute;
   final Widget Function(
     BuildContext,
-    InfiniteRemoterData<T>,
-    RemoterInfiniteUtils utils,
+    PaginatedRemoterData<T>,
+    RemoterPaginatedUtils utils,
   ) builder;
   final Function(
-          InfiniteRemoterData<T> oldState, InfiniteRemoterData<T> newState)?
+          PaginatedRemoterData<T> oldState, PaginatedRemoterData<T> newState)?
       listener;
   final dynamic Function(List<T>)? getNextPageParam;
   final dynamic Function(List<T>)? getPreviousPageParam;
   final RemoterClientOptions? options;
-  const RemoterInfiniteQuery({
+  const RemoterPaginatedQuery({
     super.key,
     this.getPreviousPageParam,
     this.getNextPageParam,
@@ -30,31 +30,31 @@ class RemoterInfiniteQuery<T> extends StatefulWidget {
   });
 
   @override
-  State<RemoterInfiniteQuery<T>> createState() =>
-      _InfiniteRemoterQueryState<T>();
+  State<RemoterPaginatedQuery<T>> createState() =>
+      _PaginatedRemoterQueryState<T>();
 }
 
-class _InfiniteRemoterQueryState<T> extends State<RemoterInfiniteQuery<T>> {
-  StreamSubscription<InfiniteRemoterData<T>>? subscription;
-  late InfiniteRemoterData<T> data;
+class _PaginatedRemoterQueryState<T> extends State<RemoterPaginatedQuery<T>> {
+  StreamSubscription<PaginatedRemoterData<T>>? subscription;
+  late PaginatedRemoterData<T> data;
 
-  InfiniteRemoterData<T> startStream() {
+  PaginatedRemoterData<T> startStream() {
     subscription?.cancel();
     final provider = RemoterProvider.of(context);
-    provider.client.saveInfiniteQueryFunctions(
+    provider.client.savePaginatedQueryFunctions(
       widget.remoterKey,
-      InfiniteQueryFunctions<T>(
+      PaginatedQueryFunctions<T>(
         getPreviousPageParam: widget.getPreviousPageParam,
         getNextPageParam: widget.getNextPageParam,
       ),
     );
-    provider.client.fetchInfinite<T>(
+    provider.client.fetchPaginated<T>(
       widget.remoterKey,
       widget.execute,
       widget.options?.staleTime,
     );
     subscription = provider.client
-        .getStream<InfiniteRemoterData<T>, T>(
+        .getStream<PaginatedRemoterData<T>, T>(
             widget.remoterKey, widget.options?.cacheTime)
         .listen((event) {
       if (widget.listener != null) widget.listener!(data, event);
@@ -62,8 +62,8 @@ class _InfiniteRemoterQueryState<T> extends State<RemoterInfiniteQuery<T>> {
         data = event;
       });
     });
-    return provider.client.getData<InfiniteRemoterData<T>>(widget.remoterKey) ??
-        InfiniteRemoterData<T>(
+    return provider.client.getData<PaginatedRemoterData<T>>(widget.remoterKey) ??
+        PaginatedRemoterData<T>(
           key: widget.remoterKey,
           data: null,
           pageParams: null,
@@ -79,7 +79,7 @@ class _InfiniteRemoterQueryState<T> extends State<RemoterInfiniteQuery<T>> {
   }
 
   @override
-  void didUpdateWidget(RemoterInfiniteQuery<T> oldWidget) {
+  void didUpdateWidget(RemoterPaginatedQuery<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.remoterKey == widget.remoterKey) return;
     final newData = startStream();
@@ -97,7 +97,7 @@ class _InfiniteRemoterQueryState<T> extends State<RemoterInfiniteQuery<T>> {
   @override
   Widget build(BuildContext context) {
     final remoter = RemoterProvider.of(context);
-    final utils = RemoterInfiniteUtils<InfiniteRemoterData<T>>(
+    final utils = RemoterPaginatedUtils<PaginatedRemoterData<T>>(
       fetchNextPage: () => remoter.client.fetchNextPage<T>(widget.remoterKey),
       fetchPreviousPage: () =>
           remoter.client.fetchPreviousPage<T>(widget.remoterKey),
@@ -105,7 +105,7 @@ class _InfiniteRemoterQueryState<T> extends State<RemoterInfiniteQuery<T>> {
           remoter.client.invalidateQuery<T>(widget.remoterKey),
       retry: () => remoter.client.retry<T>(widget.remoterKey),
       setData: (data) => remoter.client
-          .setData<InfiniteRemoterData<T>>(widget.remoterKey, data),
+          .setData<PaginatedRemoterData<T>>(widget.remoterKey, data),
     );
     return widget.builder(context, data, utils);
   }

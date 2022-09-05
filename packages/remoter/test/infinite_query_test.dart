@@ -5,10 +5,10 @@ void main() {
   test("set query data", () async {
     final client = RemoterClient();
     final stream =
-        client.getStream<InfiniteRemoterData<String>, String>("cache");
+        client.getStream<PaginatedRemoterData<String>, String>("cache");
     client.setData(
       "cache",
-      InfiniteRemoterData<String>(
+      PaginatedRemoterData<String>(
         key: "cache",
         data: ["result"],
         status: RemoterStatus.success,
@@ -21,7 +21,7 @@ void main() {
   test("invalidate query works", () async {
     final client = RemoterClient();
     bool pass = false;
-    await client.fetchInfinite<String>("cache", (_) {
+    await client.fetchPaginated<String>("cache", (_) {
       if (pass == true) {
         return "new";
       }
@@ -37,12 +37,12 @@ void main() {
 
   test("fetching previous page", () async {
     final client = RemoterClient();
-    client.saveInfiniteQueryFunctions(
+    client.savePaginatedQueryFunctions(
       "cache",
-      InfiniteQueryFunctions<String>(
+      PaginatedQueryFunctions<String>(
           getPreviousPageParam: (pages) => "previous"),
     );
-    await client.fetchInfinite<String>("cache", (param) {
+    await client.fetchPaginated<String>("cache", (param) {
       return param?.value ?? "default";
     });
     expect(client.getData("cache")?.data, ["default"]);
@@ -52,11 +52,11 @@ void main() {
 
   test("fetching next page", () async {
     final client = RemoterClient();
-    client.saveInfiniteQueryFunctions(
+    client.savePaginatedQueryFunctions(
       "cache",
-      InfiniteQueryFunctions<String>(getNextPageParam: (pages) => "next"),
+      PaginatedQueryFunctions<String>(getNextPageParam: (pages) => "next"),
     );
-    await client.fetchInfinite<String>("cache", (param) {
+    await client.fetchPaginated<String>("cache", (param) {
       return param?.value ?? "default";
     });
     expect(client.getData("cache")?.data, ["default"]);
@@ -67,24 +67,24 @@ void main() {
   test("if getNextPageParam returns null hasNextPage should be null", () async {
     final client = RemoterClient();
     int? page = 1;
-    client.saveInfiniteQueryFunctions(
+    client.savePaginatedQueryFunctions(
       "cache",
-      InfiniteQueryFunctions<String>(getNextPageParam: (pages) {
+      PaginatedQueryFunctions<String>(getNextPageParam: (pages) {
         final temp = page;
         page = null;
         return temp;
       }),
     );
-    await client.fetchInfinite<String>("cache", (param) {
+    await client.fetchPaginated<String>("cache", (param) {
       return "default";
     });
     expect(
-      client.getData<InfiniteRemoterData<String>>("cache")?.hasNextPage,
+      client.getData<PaginatedRemoterData<String>>("cache")?.hasNextPage,
       true,
     );
     await client.fetchNextPage<String>("cache");
     expect(
-      client.getData<InfiniteRemoterData<String>>("cache")?.hasNextPage,
+      client.getData<PaginatedRemoterData<String>>("cache")?.hasNextPage,
       false,
     );
   });
@@ -93,24 +93,24 @@ void main() {
       () async {
     final client = RemoterClient();
     int? page = 1;
-    client.saveInfiniteQueryFunctions(
+    client.savePaginatedQueryFunctions(
       "cache",
-      InfiniteQueryFunctions<String>(getPreviousPageParam: (pages) {
+      PaginatedQueryFunctions<String>(getPreviousPageParam: (pages) {
         final temp = page;
         page = null;
         return temp;
       }),
     );
-    await client.fetchInfinite<String>("cache", (param) {
+    await client.fetchPaginated<String>("cache", (param) {
       return "default";
     });
     expect(
-      client.getData<InfiniteRemoterData<String>>("cache")?.hasPreviousPage,
+      client.getData<PaginatedRemoterData<String>>("cache")?.hasPreviousPage,
       true,
     );
     await client.fetchPreviousPage<String>("cache");
     expect(
-      client.getData<InfiniteRemoterData<String>>("cache")?.hasPreviousPage,
+      client.getData<PaginatedRemoterData<String>>("cache")?.hasPreviousPage,
       false,
     );
   });
