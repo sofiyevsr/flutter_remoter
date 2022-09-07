@@ -1,6 +1,8 @@
 <p align="center">
   <a href="https://www.codacy.com/gh/sofiyevsr/remoter/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sofiyevsr/remoter&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/b54f20951646419e83f875089eb13daa"/></a>
   <a href="https://www.codacy.com/gh/sofiyevsr/remoter/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sofiyevsr/remoter&amp;utm_campaign=Badge_Coverage"><img src="https://app.codacy.com/project/badge/Coverage/b54f20951646419e83f875089eb13daa"/></a>
+  <a href="https://github.com/sofiyevsr/remoter/actions/workflows/flutter_remoter.yml"><img src="https://img.shields.io/github/workflow/status/sofiyevsr/remoter/Flutter%20Remoter"/></a>
+  <a href="https://pub.dev/packages/flutter_remoter"><img src="https://img.shields.io/pub/v/flutter_remoter?logo=dart"/></a>
   <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/sofiyevsr/remoter">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
 </p>
@@ -8,10 +10,6 @@
 ---
 
 Remoter aims to simplify handling asynchronous operations and revalidating them, inspired by [React Query](https://github.com/TanStack/query)
-
-| Package                                                                                      |                                                      Version                                                       |                                                                                       Status                                                                                        |
-| -------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| [flutter_remoter](https://github.com/sofiyevsr/remoter/tree/master/packages/flutter_remoter) | [![Pub Version](https://img.shields.io/pub/v/flutter_remoter?logo=dart)](https://pub.dev/packages/flutter_remoter) | [![Workflow Status](https://img.shields.io/github/workflow/status/sofiyevsr/remoter/Flutter%20Remoter)](https://github.com/sofiyevsr/remoter/actions/workflows/flutter_remoter.yml) |
 
 ## Features
 
