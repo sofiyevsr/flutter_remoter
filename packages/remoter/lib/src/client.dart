@@ -24,8 +24,11 @@ class RemoterClient {
 
   /// Storage for all data
   final RemoterCache _cache = RemoterCache();
+
+  /// Stream that sends all entry updates
   final StreamController _cacheStream = StreamController.broadcast();
 
+  /// [options] can be overriden in each query widget
   RemoterClient({RemoterClientOptions? options})
       : options = options ?? RemoterClientOptions();
 
@@ -38,8 +41,8 @@ class RemoterClient {
       cachedValue = null;
     }
 
-    /// Create new stream
-    /// that emits latest value from cache first
+    // Create new stream
+    // that emits latest value from cache first
     final stream = _cacheStream.stream
         .cast<T>()
         .where((event) => event.key == key)
@@ -57,14 +60,6 @@ class RemoterClient {
     return stream;
   }
 
-  /// Stores functions for paginated queries of how to fetch new pages
-  void savePaginatedQueryFunctions(
-    String key,
-    PaginatedQueryFunctions functions,
-  ) {
-    paginatedQueryFunctions[key] = functions;
-  }
-
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
   /// [T] expects any data type
@@ -72,15 +67,15 @@ class RemoterClient {
     final initialData = getData<RemoterData<T>>(key);
     functions[key] = fn;
 
-    /// Fetch is in progress already
+    // Fetch is in progress already
     if (initialData != null &&
         (initialData.status == RemoterStatus.fetching ||
             initialData.isRefetching == true)) {
       return;
     }
 
-    /// If cache for [key] is there and is not stale return cache
-    /// If cache is stale, trigger background refetch
+    // If cache for [key] is there and is not stale return cache
+    // If cache is stale, trigger background refetch
     if (initialData != null && initialData.status == RemoterStatus.success) {
       if (isQueryStale(key, staleTime)) {
         _dispatch(
@@ -104,15 +99,15 @@ class RemoterClient {
     final initialData = getData<PaginatedRemoterData<T>>(key);
     functions[key] = fn;
 
-    /// Fetch is in progress already
+    // Fetch is in progress already
     if (initialData != null &&
         (initialData.status == RemoterStatus.fetching ||
             initialData.isRefetching == true)) {
       return;
     }
 
-    /// If cache for [key] is there and is not stale return cache
-    /// If cache is stale, trigger background refetch
+    // If cache for [key] is there and is not stale return cache
+    // If cache is stale, trigger background refetch
     if (initialData != null && initialData.status == RemoterStatus.success) {
       if (isQueryStale(key, staleTime)) {
         _dispatch(
@@ -318,7 +313,7 @@ class RemoterClient {
 
   /// Decrease listeners count for [key]
   /// If there is no listener
-  /// Start timer to delete cache after [cacheTime] or top level [options.cacheTime]
+  /// Start timer to delete cache after [cacheTime]
   void decreaseListenersCount(String key, [int? cacheTime]) {
     if (listeners[key] == null) return;
     if (listeners[key] == 1) {
@@ -329,13 +324,21 @@ class RemoterClient {
     }
   }
 
-  /// Return if query is stale based on [staleTime] or top level [options.staleTime]
+  /// Return if query is stale based on [staleTime]
   bool isQueryStale(String key, [int? staleTime]) {
     final entry = _cache.getData<BaseRemoterData>(key);
     if (entry == null) return true;
     final isStale = clock.now().difference(entry.updatedAt).inMilliseconds >=
         (staleTime ?? options.staleTime);
     return isStale;
+  }
+
+  /// Stores functions for paginated queries of how to fetch new pages
+  void savePaginatedQueryFunctions(
+    String key,
+    PaginatedQueryFunctions functions,
+  ) {
+    paginatedQueryFunctions[key] = functions;
   }
 
   /// Called to release all allocated resources

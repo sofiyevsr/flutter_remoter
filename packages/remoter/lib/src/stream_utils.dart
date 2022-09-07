@@ -53,7 +53,7 @@ class CustomStreamTransformer<S> extends StreamTransformerBase<S, S> {
     StreamSubscription<S>? sub;
 
     sink.onListen();
-    if (onListen != null) onListen!();
+    onListen?.call();
 
     sub = stream.listen(
       sink.onData,
@@ -62,7 +62,7 @@ class CustomStreamTransformer<S> extends StreamTransformerBase<S, S> {
     );
 
     sink.setOnCloseCallback(() {
-      if (onClose != null) onClose!();
+      onClose?.call();
       sub?.cancel();
     });
 

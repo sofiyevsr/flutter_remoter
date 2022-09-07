@@ -71,7 +71,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       controller.stream,
-      emitsInAnyOrder([
+      emitsInOrder([
         [null, "result"],
         emitsDone
       ]),

@@ -10,6 +10,8 @@ class RemoterClientOptions {
   });
 }
 
+/// Represents [status] for query
+/// [idle] is used only if query is disabled
 enum RemoterStatus {
   idle,
   fetching,
@@ -17,18 +19,20 @@ enum RemoterStatus {
   error,
 }
 
+/// Used to determine [RemoterParam] type
 enum RemoterParamType {
   previous,
   next,
 }
 
+/// Represents parameter object passed to [execute] function [PaginatedRemoterQuery]
 class RemoterParam<T> {
   RemoterParamType type;
   T value;
   RemoterParam({required this.value, required this.type});
 }
 
-class BaseRemoterData<T> {
+abstract class BaseRemoterData<T> {
   String key;
   RemoterStatus status;
   DateTime updatedAt;
@@ -49,6 +53,8 @@ class BaseRemoterData<T> {
   }
 }
 
+/// Represents data fetched for [RemoterQuery]
+/// [T] represents the type of data fetched in the query
 class RemoterData<T> extends BaseRemoterData<T> {
   final T? data;
   RemoterData({
@@ -78,6 +84,8 @@ class RemoterData<T> extends BaseRemoterData<T> {
       );
 }
 
+/// Represents data fetched for [PaginatedRemoterQuery]
+/// [T] represents the type of data in list of pages fetched in the query
 class PaginatedRemoterData<T> extends BaseRemoterData<T> {
   final List<RemoterParam?>? pageParams;
   final List<T>? data;
@@ -149,6 +157,7 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
         hasNextPage: hasNextPage == null ? this.hasNextPage : hasNextPage.value,
       );
 
+  /// Creates new copy of [this.data] with mutated element at [index] with [data]
   List<T>? modifyData(int index, T data) {
     if (this.data == null || index > this.data!.length - 1) return null;
     final clone = [...this.data!];

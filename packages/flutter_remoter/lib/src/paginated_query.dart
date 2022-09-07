@@ -83,7 +83,7 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
         .getStream<PaginatedRemoterData<T>, T>(
             widget.remoterKey, widget.options?.cacheTime)
         .listen((event) {
-      if (widget.listener != null) widget.listener!(data, event);
+      widget.listener?.call(data, event);
       setState(() {
         data = event;
       });

@@ -64,7 +64,7 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
             widget.remoterKey, widget.options?.cacheTime)
         .listen(
       (event) {
-        if (widget.listener != null) widget.listener!(data, event);
+        widget.listener?.call(data, event);
         setState(() {
           data = event;
         });
