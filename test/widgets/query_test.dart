@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_remoter/internals/client.dart';
+import 'package:flutter_remoter/internals/types.dart';
+import 'package:flutter_remoter/widgets/provider.dart';
+import 'package:flutter_remoter/widgets/query.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:flutter_remoter/flutter_remoter.dart';
-import 'package:remoter/remoter.dart';
 
 class App extends StatefulWidget {
   final RemoterClient client;

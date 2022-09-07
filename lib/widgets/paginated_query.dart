@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_remoter/flutter_remoter.dart';
-import 'package:remoter/remoter.dart';
+import 'package:flutter_remoter/internals/types.dart';
+import 'package:flutter_remoter/widgets/provider.dart';
+import 'package:flutter_remoter/widgets/types.dart';
 
 class PaginatedRemoterQuery<T> extends StatefulWidget {
   final String remoterKey;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_remoter/flutter_remoter.dart';
-import 'package:remoter/remoter.dart';
 import 'package:pagination/api/facts.dart';
 
 import 'new_page.dart';

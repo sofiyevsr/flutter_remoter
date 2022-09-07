@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_remoter/src/provider.dart';
-import 'package:flutter_remoter/src/types.dart';
-import 'package:remoter/remoter.dart';
+import 'package:flutter_remoter/internals/types.dart';
+import 'package:flutter_remoter/widgets/provider.dart';
+import 'package:flutter_remoter/widgets/types.dart';
 
 class RemoterQuery<T> extends StatefulWidget {
   final String remoterKey;

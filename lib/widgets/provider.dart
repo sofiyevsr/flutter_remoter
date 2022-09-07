@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:remoter/remoter.dart';
+import 'package:flutter_remoter/internals/client.dart';
 
 class RemoterProvider extends InheritedWidget {
   final RemoterClient client;

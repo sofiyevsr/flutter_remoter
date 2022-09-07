@@ -11,7 +11,6 @@ Remoter aims to simplify handling asynchronous operations and revalidating them,
 
 | Package                                                                                      |                                                      Version                                                       |                                                                                       Status                                                                                        |
 | -------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| [remoter](https://github.com/sofiyevsr/remoter/tree/master/packages/remoter)                 |         [![Pub Version](https://img.shields.io/pub/v/remoter?logo=dart)](https://pub.dev/packages/remoter)         |          [![Workflow Status](https://img.shields.io/github/workflow/status/sofiyevsr/remoter/Remoter)](https://github.com/sofiyevsr/remoter/actions/workflows/remoter.yml)          |
 | [flutter_remoter](https://github.com/sofiyevsr/remoter/tree/master/packages/flutter_remoter) | [![Pub Version](https://img.shields.io/pub/v/flutter_remoter?logo=dart)](https://pub.dev/packages/flutter_remoter) | [![Workflow Status](https://img.shields.io/github/workflow/status/sofiyevsr/remoter/Flutter%20Remoter)](https://github.com/sofiyevsr/remoter/actions/workflows/flutter_remoter.yml) |
 
 ## Features
@@ -30,7 +29,6 @@ Remoter aims to simplify handling asynchronous operations and revalidating them,
 
 ```yaml
 dependencies:
-  remoter: TODO
   flutter_remoter: TODO
 ```
 

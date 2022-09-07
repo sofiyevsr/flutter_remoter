@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:remoter/src/stream_utils.dart';
-import 'package:test/test.dart';
+import 'package:flutter_remoter/internals/stream_utils.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test("stream gets latest data on listen", () {

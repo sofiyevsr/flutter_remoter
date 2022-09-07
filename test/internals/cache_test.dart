@@ -1,7 +1,7 @@
 import 'package:fake_async/fake_async.dart';
-import 'package:test/test.dart';
+import 'package:flutter_remoter/internals/cache.dart';
+import 'package:flutter_test/flutter_test.dart';
 
-import 'package:remoter/src/cache.dart';
 
 void main() {
   group("simple apis work", () {

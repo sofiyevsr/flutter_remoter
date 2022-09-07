@@ -1,6 +1,8 @@
-import 'package:remoter/remoter.dart';
-import 'package:test/test.dart';
-import 'utils/run_fake_async.dart';
+import 'package:flutter_remoter/internals/client.dart';
+import 'package:flutter_remoter/internals/types.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../utils/run_fake_async.dart';
 
 void main() {
   group("simple apis", () {

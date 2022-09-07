@@ -12,10 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^4.0.6
-  remoter:
-    path: "../../packages/remoter"
   flutter_remoter:
-    path: "../../packages/flutter_remoter"
+    path: "../.."
 
 dev_dependencies:
   flutter_test:
