@@ -2,7 +2,6 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_remoter/internals/cache.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
 void main() {
   group("simple apis work", () {
     test('set data works', () {
