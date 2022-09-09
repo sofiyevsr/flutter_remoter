@@ -41,12 +41,14 @@ class MyApp extends StatelessWidget {
     return RemoterProvider(
       client: RemoterClient(
         options: RemoterClientOptions(
-            // default is 5 minutes
+            // staleTime defines how many ms after query fetched can be refetched
             // Use infinite staleTime if you don't need queries to be refetched when new query mounts
             // 1 << 31 is max int32
-            // staleTime: 1 << 31,
-            // default is 0ms, meaning queries are collected immediately after all listeners gone
-            // cacheTime: 0,
+            // default is 0ms
+            staleTime: 0,
+            // cacheTime defines how many ms after all listeners are gone query data should be cleared,
+            // default is 5 minutes
+            cacheTime: 5 * 60 * 1000,
             ),
       ),
       child: const MaterialApp(
