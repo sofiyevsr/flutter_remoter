@@ -65,6 +65,24 @@ void main() {
     expect(client.getData("cache")?.data, ["default", "next"]);
   });
 
+  test("fetching both next and prev page is okay", () async {
+    final client = RemoterClient();
+    client.savePaginatedQueryFunctions(
+      "cache",
+      PaginatedQueryFunctions<String>(
+          getNextPageParam: (pages) => "next",
+          getPreviousPageParam: (pages) => "prev"),
+    );
+    await client.fetchPaginated<String>("cache", (param) {
+      return param?.value ?? "default";
+    });
+    await Future.wait([
+      client.fetchNextPage<String>("cache"),
+      client.fetchPreviousPage<String>("cache"),
+    ]);
+    expect(client.getData("cache")?.data, ["prev", "default", "next"]);
+  });
+
   test("if getNextPageParam returns null hasNextPage should be null", () async {
     final client = RemoterClient();
     int? page = 1;
