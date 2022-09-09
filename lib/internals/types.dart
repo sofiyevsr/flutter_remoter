@@ -1,16 +1,27 @@
 import 'package:clock/clock.dart';
 
-/// Both [staleTime] and [cacheTime] should be in milliseconds
+/// Defines options for [RemoterClient], [RemoterQuery] and [PaginatedRemoterQuery]
 class RemoterClientOptions {
+  /// Defines after how many ms after query data is considered as stale
   final int staleTime;
+
+  /// Defines after how many ms after all listeners unmounted cache should be cleared
   final int cacheTime;
+
+  /// Maximum delay between retries
   final int maxDelay;
+
+  /// Maximum amount of retries
   final int maxAttempts;
+
+  /// Flag that decides if query that has error status should be refetched on mount
+  final bool retryOnMount;
   RemoterClientOptions({
     this.staleTime = 0,
     this.cacheTime = 5 * 1000 * 60,
     this.maxDelay = 5 * 1000 * 60,
     this.maxAttempts = 3,
+    this.retryOnMount = true,
   });
 }
 

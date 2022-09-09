@@ -32,7 +32,7 @@ void main() {
         await client.fetch<String>("cache", (_) async {
           count += 1;
           throw Error();
-        }, 0, 0, 3).catchError((error) {});
+        }, staleTime: 0, maxDelay: 0, maxAttempts: 3);
         time.elapse(const Duration(seconds: 0));
         final data = client.getData<RemoterData<String>>("cache");
         expect(data?.status, RemoterStatus.error);
@@ -47,7 +47,7 @@ void main() {
         await client.fetchPaginated<String>("cache", (_) async {
           count += 1;
           throw Error();
-        }, 0, 0, 3).catchError((error) {});
+        }, staleTime: 0, maxDelay: 0, maxAttempts: 3);
         time.elapse(const Duration(seconds: 0));
         final data = client.getData<PaginatedRemoterData<String>>("cache");
         expect(data?.status, RemoterStatus.error);
@@ -68,7 +68,7 @@ void main() {
           count += 1;
           if (count == 3) return "result";
           throw Error();
-        }, 0, 0, 3).catchError((error) {});
+        }, staleTime: 0, maxDelay: 0, maxAttempts: 3);
         time.elapse(const Duration(seconds: 0));
         client.dispose();
         expectLater(
@@ -104,7 +104,7 @@ void main() {
           count += 1;
           if (count == 3) return "result";
           throw Error();
-        }, 0, 0, 3).catchError((error) {});
+        }, staleTime: 0, maxDelay: 0, maxAttempts: 3);
         time.elapse(const Duration(seconds: 0));
         client.dispose();
         expectLater(
@@ -128,6 +128,49 @@ void main() {
             emitsDone,
           ]),
         );
+      });
+    });
+  });
+
+  group("fetching failed query should trigger retry", () {
+    test("RemoterQuery", () {
+      final client = RemoterClient();
+      Future<String> getData(bool fail) async {
+        if (fail == true) {
+          throw Error();
+        }
+        return "result";
+      }
+
+      runFakeAsync((time) async {
+        await client.fetch<String>("cache", (_) => getData(true),
+            staleTime: 0, maxDelay: 0, maxAttempts: 3);
+        time.elapse(const Duration(seconds: 0));
+        expect(client.getData<RemoterData<String>>("cache")?.data, null);
+        await client.fetch<String>("cache", (_) => getData(false),
+            staleTime: 0, maxDelay: 0, maxAttempts: 3);
+        expect(client.getData<RemoterData<String>>("cache")?.data, "result");
+      });
+    });
+    test("PaginatedRemoterQuery", () {
+      final client = RemoterClient();
+      Future<String> getData(bool fail) async {
+        if (fail == true) {
+          throw Error();
+        }
+        return "result";
+      }
+
+      runFakeAsync((time) async {
+        await client.fetchPaginated<String>("cache", (_) => getData(true),
+            staleTime: 0, maxDelay: 0, maxAttempts: 3);
+        time.elapse(const Duration(seconds: 0));
+        expect(
+            client.getData<PaginatedRemoterData<String>>("cache")?.data, null);
+        await client.fetchPaginated<String>("cache", (_) => getData(false),
+            staleTime: 0, maxDelay: 0, maxAttempts: 3);
+        expect(client.getData<PaginatedRemoterData<String>>("cache")?.data,
+            ["result"]);
       });
     });
   });

@@ -49,9 +49,10 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
       refetch: () => remoter.client.fetchPaginated<T>(
         widget.remoterKey,
         widget.execute,
-        widget.options?.staleTime,
-        widget.options?.maxDelay,
-        widget.options?.maxAttempts,
+        staleTime: widget.options?.staleTime,
+        maxDelay: widget.options?.maxDelay,
+        maxAttempts: widget.options?.maxAttempts,
+        retryOnMount: widget.options?.retryOnMount,
       ),
       fetchNextPage: () => remoter.client.fetchNextPage<T>(
         widget.remoterKey,
@@ -99,9 +100,10 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
     provider.client.fetchPaginated<T>(
       widget.remoterKey,
       widget.execute,
-      widget.options?.staleTime,
-      widget.options?.maxDelay,
-      widget.options?.maxAttempts,
+      staleTime: widget.options?.staleTime,
+      maxDelay: widget.options?.maxDelay,
+      maxAttempts: widget.options?.maxAttempts,
+      retryOnMount: widget.options?.retryOnMount,
     );
     subscription = provider.client
         .getStream<PaginatedRemoterData<T>, T>(

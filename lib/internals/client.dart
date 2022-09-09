@@ -64,11 +64,19 @@ class RemoterClient {
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
   /// Can also be used as refetch function
+  /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> fetch<T>(String key, FetchFunction fn,
-      [int? staleTime, int? maxDelay, int? maxAttempts]) async {
+  Future<void> fetch<T>(
+    String key,
+    FetchFunction fn, {
+    int? staleTime,
+    int? maxDelay,
+    int? maxAttempts,
+    bool? retryOnMount,
+  }) async {
     maxDelay = maxDelay ?? options.maxDelay;
     maxAttempts = maxAttempts ?? options.maxAttempts;
+    retryOnMount = retryOnMount ?? options.retryOnMount;
     final initialData = getData<RemoterData<T>>(key);
     functions[key] = fn;
 
@@ -79,13 +87,24 @@ class RemoterClient {
       return;
     }
 
+    // Retry query if it has error status
+    if (initialData?.status == RemoterStatus.error && retryOnMount == true) {
+      _dispatch(
+        key,
+        initialData!.copyWith(
+          error: Nullable(null),
+          status: Nullable(RemoterStatus.fetching),
+        ),
+      );
+    }
+
     // If cache for [key] is there and is not stale return cache
     // If cache is stale, trigger background refetch
-    if (initialData != null && initialData.status == RemoterStatus.success) {
+    if (initialData?.status == RemoterStatus.success) {
       if (isQueryStale(key, staleTime)) {
         _dispatch(
           key,
-          initialData.copyWith(
+          initialData!.copyWith(
             isRefetching: Nullable(true),
           ),
         );
@@ -99,11 +118,19 @@ class RemoterClient {
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
   /// Can also be used as refetch function
+  /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> fetchPaginated<T>(String key, FetchFunction fn,
-      [int? staleTime, int? maxDelay, int? maxAttempts]) async {
+  Future<void> fetchPaginated<T>(
+    String key,
+    FetchFunction fn, {
+    int? staleTime,
+    int? maxDelay,
+    int? maxAttempts,
+    bool? retryOnMount,
+  }) async {
     maxDelay = maxDelay ?? options.maxDelay;
     maxAttempts = maxAttempts ?? options.maxAttempts;
+    retryOnMount = retryOnMount ?? options.retryOnMount;
     final initialData = getData<PaginatedRemoterData<T>>(key);
     functions[key] = fn;
 
@@ -114,13 +141,24 @@ class RemoterClient {
       return;
     }
 
+    // Retry query if it has error status
+    if (initialData?.status == RemoterStatus.error && retryOnMount == true) {
+      _dispatch(
+        key,
+        initialData!.copyWith(
+          error: Nullable(null),
+          status: Nullable(RemoterStatus.fetching),
+        ),
+      );
+    }
+
     // If cache for [key] is there and is not stale return cache
     // If cache is stale, trigger background refetch
-    if (initialData != null && initialData.status == RemoterStatus.success) {
+    if (initialData?.status == RemoterStatus.success) {
       if (isQueryStale(key, staleTime)) {
         _dispatch(
           key,
-          initialData.copyWith(isRefetching: Nullable(true)),
+          initialData!.copyWith(isRefetching: Nullable(true)),
         );
       } else {
         return _dispatch(key, initialData);
@@ -346,6 +384,14 @@ class RemoterClient {
     }
   }
 
+  /// Stores functions for paginated queries of how to fetch new pages
+  void savePaginatedQueryFunctions(
+    String key,
+    PaginatedQueryFunctions functions,
+  ) {
+    paginatedQueryFunctions[key] = functions;
+  }
+
   /// Sets data for entry with [key]
   /// Also notifies listeners with new state
   /// [T] expects [RemoterData] or [PaginatedRemoterData] type
@@ -394,14 +440,6 @@ class RemoterClient {
     final isStale = clock.now().difference(entry.updatedAt).inMilliseconds >=
         (staleTime ?? options.staleTime);
     return isStale;
-  }
-
-  /// Stores functions for paginated queries of how to fetch new pages
-  void savePaginatedQueryFunctions(
-    String key,
-    PaginatedQueryFunctions functions,
-  ) {
-    paginatedQueryFunctions[key] = functions;
   }
 
   /// Called to release all allocated resources
