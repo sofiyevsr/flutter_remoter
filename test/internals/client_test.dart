@@ -2,6 +2,8 @@ import 'package:flutter_remoter/internals/client.dart';
 import 'package:flutter_remoter/internals/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../utils/run_fake_async.dart';
+
 void main() {
   test("stream receives only given key's data", () async {
     final client = RemoterClient();
@@ -20,5 +22,113 @@ void main() {
         emitsDone,
       ]),
     );
+  });
+
+  group("if fetch api fails should increase failcount", () {
+    test("RemoterQuery", () async {
+      final client = RemoterClient();
+      int count = 0;
+      runFakeAsync((time) async {
+        await client.fetch<String>("cache", (_) async {
+          count += 1;
+          throw Error();
+        }, 0, 0, 3).catchError((error) {});
+        time.elapse(const Duration(seconds: 0));
+        final data = client.getData<RemoterData<String>>("cache");
+        expect(data?.status, RemoterStatus.error);
+        expect(data?.failCount, 3);
+        expect(count, 3);
+      });
+    });
+    test("PaginatedRemoterQuery", () async {
+      final client = RemoterClient();
+      int count = 0;
+      runFakeAsync((time) async {
+        await client.fetchPaginated<String>("cache", (_) async {
+          count += 1;
+          throw Error();
+        }, 0, 0, 3).catchError((error) {});
+        time.elapse(const Duration(seconds: 0));
+        final data = client.getData<PaginatedRemoterData<String>>("cache");
+        expect(data?.status, RemoterStatus.error);
+        expect(data?.failCount, 3);
+        expect(count, 3);
+      });
+    });
+  });
+
+  group("stream should receive status of fetching and failcount while retrying",
+      () {
+    test("RemoterQuery", () {
+      final client = RemoterClient();
+      final stream = client.getStream<RemoterData<String>, String>("cache");
+      int count = 0;
+      runFakeAsync((time) async {
+        await client.fetch<String>("cache", (_) async {
+          count += 1;
+          if (count == 3) return "result";
+          throw Error();
+        }, 0, 0, 3).catchError((error) {});
+        time.elapse(const Duration(seconds: 0));
+        client.dispose();
+        expectLater(
+          stream,
+          emitsInOrder([
+            predicate<RemoterData<String>>((d) {
+              expect(d.failCount, 1);
+              expect(d.status, RemoterStatus.fetching);
+              return true;
+            }),
+            predicate<RemoterData<String>>((d) {
+              expect(d.failCount, 2);
+              expect(d.status, RemoterStatus.fetching);
+              return true;
+            }),
+            predicate<RemoterData<String>>((d) {
+              expect(d.data, "result");
+              expect(d.status, RemoterStatus.success);
+              return true;
+            }),
+            emitsDone,
+          ]),
+        );
+      });
+    });
+    test("PaginatedRemoterQuery", () {
+      final client = RemoterClient();
+      final stream =
+          client.getStream<PaginatedRemoterData<String>, String>("cache");
+      int count = 0;
+      runFakeAsync((time) async {
+        await client.fetchPaginated<String>("cache", (_) async {
+          count += 1;
+          if (count == 3) return "result";
+          throw Error();
+        }, 0, 0, 3).catchError((error) {});
+        time.elapse(const Duration(seconds: 0));
+        client.dispose();
+        expectLater(
+          stream,
+          emitsInOrder([
+            predicate<PaginatedRemoterData<String>>((d) {
+              expect(d.failCount, 1);
+              expect(d.status, RemoterStatus.fetching);
+              return true;
+            }),
+            predicate<PaginatedRemoterData<String>>((d) {
+              expect(d.failCount, 2);
+              expect(d.status, RemoterStatus.fetching);
+              return true;
+            }),
+            predicate<PaginatedRemoterData<String>>((d) {
+              expect(d.data, ["result"]);
+              expect(d.status, RemoterStatus.success);
+              return true;
+            }),
+            emitsDone,
+          ]),
+        );
+      });
+    });
   });
 }

@@ -4,9 +4,13 @@ import 'package:clock/clock.dart';
 class RemoterClientOptions {
   final int staleTime;
   final int cacheTime;
+  final int maxDelay;
+  final int maxAttempts;
   RemoterClientOptions({
     this.staleTime = 0,
     this.cacheTime = 5 * 1000 * 60,
+    this.maxDelay = 5 * 1000 * 60,
+    this.maxAttempts = 3,
   });
 }
 
@@ -57,6 +61,7 @@ abstract class BaseRemoterData<T> {
 /// [T] represents the type of data fetched in the query
 class RemoterData<T> extends BaseRemoterData<T> {
   final T? data;
+  final int failCount;
   RemoterData({
     required super.key,
     required this.data,
@@ -64,7 +69,8 @@ class RemoterData<T> extends BaseRemoterData<T> {
     super.error,
     super.status,
     super.isRefetching,
-  });
+    int? failCount,
+  }) : failCount = failCount ?? 0;
   RemoterData<T> copyWith({
     String? key,
     Nullable<T>? data,
@@ -72,6 +78,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
     Nullable<DateTime>? updatedAt,
     Nullable<RemoterStatus>? status,
     Nullable<bool>? isRefetching,
+    Nullable<int>? failCount,
   }) =>
       RemoterData<T>(
         key: key ?? this.key,
@@ -81,6 +88,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
         status: status == null ? this.status : status.value,
         isRefetching:
             isRefetching == null ? this.isRefetching : isRefetching.value,
+        failCount: failCount == null ? this.failCount : failCount.value,
       );
 }
 
@@ -89,6 +97,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
 class PaginatedRemoterData<T> extends BaseRemoterData<T> {
   final List<RemoterParam?>? pageParams;
   final List<T>? data;
+  final int failCount;
   final bool isFetchingNextPage;
   final bool isFetchingPreviousPage;
   final bool isPreviousPageError;
@@ -103,6 +112,7 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     super.error,
     super.status,
     super.isRefetching,
+    int? failCount,
     bool? isFetchingPreviousPage,
     bool? isFetchingNextPage,
     bool? isPreviousPageError,
@@ -114,7 +124,8 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
         isPreviousPageError = isPreviousPageError ?? false,
         isNextPageError = isNextPageError ?? false,
         hasPreviousPage = hasPreviousPage ?? false,
-        hasNextPage = hasNextPage ?? false;
+        hasNextPage = hasNextPage ?? false,
+        failCount = failCount ?? 0;
   PaginatedRemoterData<T> copyWith({
     String? key,
     Nullable<List<T>>? data,
@@ -129,6 +140,7 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     Nullable<bool>? isNextPageError,
     Nullable<bool>? hasPreviousPage,
     Nullable<bool>? hasNextPage,
+    Nullable<int>? failCount,
   }) =>
       PaginatedRemoterData<T>(
         key: key ?? this.key,
@@ -155,6 +167,7 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
             ? this.hasPreviousPage
             : hasPreviousPage.value,
         hasNextPage: hasNextPage == null ? this.hasNextPage : hasNextPage.value,
+        failCount: failCount == null ? this.failCount : failCount.value,
       );
 
   /// Creates new copy of [this.data] with mutated element at [index] with [data]
