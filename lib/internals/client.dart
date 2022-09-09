@@ -36,7 +36,7 @@ class RemoterClient {
   /// [T] expects [RemoterData] or [PaginatedRemoterData] type
   Stream<T> getStream<T extends BaseRemoterData, S>(String key,
       [int? cacheTime]) {
-    T? cachedValue = _cache.getData<T>(key);
+    T? cachedValue = getData<T>(key);
     if (cachedValue == null || cachedValue.status != RemoterStatus.success) {
       cachedValue = null;
     }
@@ -118,14 +118,14 @@ class RemoterClient {
         return _dispatch(key, initialData);
       }
     }
-    _fetchPaginatedQuery<T>(key, initialData);
+    _fetchPaginatedQuery<T>(key);
   }
 
   /// Fetches next page of data with [key]
   /// if [hasNextPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchNextPage<T>(String key) async {
-    final initialData = getData<PaginatedRemoterData<T>>(key);
+    var initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
         paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
@@ -145,7 +145,14 @@ class RemoterClient {
       );
       final param = RemoterParam(value: pageParam, type: RemoterParamType.next);
       final data = await fn(param);
-      final mergedData = [...initialData.data!, data as T];
+      // Update data after function runs
+      initialData = getData<PaginatedRemoterData<T>>(key);
+      if (initialData?.hasNextPage == false ||
+          initialData?.data == null ||
+          initialData?.status != RemoterStatus.success) {
+        return;
+      }
+      final mergedData = [...initialData!.data!, data as T];
       _dispatch(
         key,
         PaginatedRemoterData<T>(
@@ -166,7 +173,7 @@ class RemoterClient {
     } catch (error) {
       _dispatch(
         key,
-        initialData.copyWith(
+        initialData?.copyWith(
           isFetchingNextPage: Nullable(false),
           isNextPageError: Nullable(true),
           error: Nullable(error),
@@ -179,7 +186,7 @@ class RemoterClient {
   /// if [hasPreviousPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchPreviousPage<T>(String key) async {
-    final initialData = getData<PaginatedRemoterData<T>>(key);
+    var initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
         paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
@@ -200,7 +207,14 @@ class RemoterClient {
       final param =
           RemoterParam(value: pageParam, type: RemoterParamType.previous);
       final data = await fn(param);
-      final mergedData = [data as T, ...initialData.data!];
+      // Update data after function runs
+      initialData = getData<PaginatedRemoterData<T>>(key);
+      if (initialData?.hasPreviousPage == false ||
+          initialData?.data == null ||
+          initialData?.status != RemoterStatus.success) {
+        return;
+      }
+      final mergedData = [data as T, ...initialData!.data!];
       _dispatch(
         key,
         PaginatedRemoterData<T>(
@@ -221,7 +235,7 @@ class RemoterClient {
     } catch (error) {
       _dispatch(
         key,
-        initialData.copyWith(
+        initialData?.copyWith(
           isFetchingPreviousPage: Nullable(false),
           isPreviousPageError: Nullable(true),
           error: Nullable(error),
@@ -241,14 +255,14 @@ class RemoterClient {
         key,
         (initialData as RemoterData).copyWith(isRefetching: Nullable(true)),
       );
-      _fetchQuery<T>(key, (initialData as RemoterData<T>));
+      _fetchQuery<T>(key);
     } else if (initialData is PaginatedRemoterData) {
       _dispatch(
         key,
         (initialData as PaginatedRemoterData)
             .copyWith(isRefetching: Nullable(true)),
       );
-      _fetchPaginatedQuery<T>(key, (initialData as PaginatedRemoterData<T>));
+      _fetchPaginatedQuery<T>(key);
     }
   }
 
@@ -326,7 +340,7 @@ class RemoterClient {
 
   /// Return if query is stale based on [staleTime]
   bool isQueryStale(String key, [int? staleTime]) {
-    final entry = _cache.getData<BaseRemoterData>(key);
+    final entry = getData<BaseRemoterData>(key);
     if (entry == null) return true;
     final isStale = clock.now().difference(entry.updatedAt).inMilliseconds >=
         (staleTime ?? options.staleTime);
@@ -351,9 +365,10 @@ class RemoterClient {
   }
 
   /// [T] expects any data type
-  Future<void> _fetchQuery<T>(String key, [RemoterData<T>? initialData]) async {
+  Future<void> _fetchQuery<T>(String key) async {
     final fn = functions[key];
     if (fn == null) return;
+    final initialData = getData<RemoterData<T>>(key);
     try {
       final data = await fn(null);
       _dispatch(
@@ -378,17 +393,22 @@ class RemoterClient {
   }
 
   /// [T] expects any data type
-  Future<void> _fetchPaginatedQuery<T>(String key,
-      [PaginatedRemoterData<T>? initialData]) async {
+  Future<void> _fetchPaginatedQuery<T>(
+    String key,
+  ) async {
     final fn = functions[key];
     final pagefn = paginatedQueryFunctions[key] as PaginatedQueryFunctions<T>?;
     if (fn == null) return;
+    var initialData = getData<PaginatedRemoterData<T>>(key);
     final pageParams = initialData?.pageParams ?? [null];
     final List<Future<void>> futures = [];
     for (int i = 0; i < pageParams.length; i++) {
       futures.add(() async {
         try {
           final data = await fn(pageParams[i]);
+          // This is required to getLatest data to avoid overriding state
+          // on concurrent actions
+          initialData = getData<PaginatedRemoterData<T>>(key);
           final modifiedData = initialData?.modifyData(i, data) ?? [data as T];
           _dispatch(
             key,
