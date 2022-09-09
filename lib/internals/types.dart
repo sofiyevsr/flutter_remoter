@@ -10,7 +10,7 @@ class RemoterClientOptions {
   });
 }
 
-/// Represents [status] for query
+/// Represents status for query
 /// [idle] is used only if query is disabled
 enum RemoterStatus {
   idle,
@@ -25,7 +25,7 @@ enum RemoterParamType {
   next,
 }
 
-/// Represents parameter object passed to [execute] function [PaginatedRemoterQuery]
+/// Represents parameter object passed to [PaginatedRemoterQuery.execute]
 class RemoterParam<T> {
   RemoterParamType type;
   T value;

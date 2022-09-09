@@ -62,6 +62,7 @@ class RemoterClient {
 
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
+  /// Can also be used as refetch function
   /// [T] expects any data type
   Future<void> fetch<T>(String key, FetchFunction fn, [int? staleTime]) async {
     final initialData = getData<RemoterData<T>>(key);
@@ -93,6 +94,7 @@ class RemoterClient {
 
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
+  /// Can also be used as refetch function
   /// [T] expects any data type
   Future<void> fetchPaginated<T>(String key, FetchFunction fn,
       [int? staleTime]) async {
@@ -122,7 +124,7 @@ class RemoterClient {
   }
 
   /// Fetches next page of data with [key]
-  /// if [hasNextPage] of current data is true
+  /// if [PaginatedRemoterData.hasNextPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchNextPage<T>(String key) async {
     var initialData = getData<PaginatedRemoterData<T>>(key);
@@ -183,7 +185,7 @@ class RemoterClient {
   }
 
   /// Fetches previous page of data with [key]
-  /// if [hasPreviousPage] of current data is true
+  /// if [PaginatedRemoterData.hasPreviousPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchPreviousPage<T>(String key) async {
     var initialData = getData<PaginatedRemoterData<T>>(key);
@@ -267,7 +269,7 @@ class RemoterClient {
   }
 
   /// Retries failed query
-  /// Query should have [status] of [RemoterStatus.error]
+  /// Query should have status of [RemoterStatus.error]
   /// [T] expects any data type
   Future<void> retry<T>(String key) async {
     final initialData = getData<BaseRemoterData<T>>(key);
