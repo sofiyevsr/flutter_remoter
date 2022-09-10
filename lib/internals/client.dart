@@ -226,6 +226,8 @@ class RemoterClient {
             param,
           ]),
           data: Nullable(mergedData),
+          hasPreviousPage: Nullable(
+              pageFunctions.getPreviousPageParam?.call(mergedData) != null),
           hasNextPage: Nullable(
               pageFunctions.getNextPageParam?.call(mergedData) != null),
           isFetchingNextPage: Nullable(false),
@@ -307,6 +309,8 @@ class RemoterClient {
           data: Nullable(mergedData),
           hasPreviousPage: Nullable(
               pageFunctions.getPreviousPageParam?.call(mergedData) != null),
+          hasNextPage: Nullable(
+              pageFunctions.getNextPageParam?.call(mergedData) != null),
           isFetchingPreviousPage: Nullable(false),
           prevPageFailCount: Nullable(0),
         ),
