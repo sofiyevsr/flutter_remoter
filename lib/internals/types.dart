@@ -109,6 +109,8 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
   final List<RemoterParam?>? pageParams;
   final List<T>? data;
   final int failCount;
+  final int prevPageFailCount;
+  final int nextPageFailCount;
   final bool isFetchingNextPage;
   final bool isFetchingPreviousPage;
   final bool isPreviousPageError;
@@ -124,6 +126,8 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     super.status,
     super.isRefetching,
     int? failCount,
+    int? prevPageFailCount,
+    int? nextPageFailCount,
     bool? isFetchingPreviousPage,
     bool? isFetchingNextPage,
     bool? isPreviousPageError,
@@ -136,7 +140,9 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
         isNextPageError = isNextPageError ?? false,
         hasPreviousPage = hasPreviousPage ?? false,
         hasNextPage = hasNextPage ?? false,
-        failCount = failCount ?? 0;
+        failCount = failCount ?? 0,
+        prevPageFailCount = prevPageFailCount ?? 0,
+        nextPageFailCount = nextPageFailCount ?? 0;
   PaginatedRemoterData<T> copyWith({
     String? key,
     Nullable<List<T>>? data,
@@ -152,6 +158,8 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     Nullable<bool>? hasPreviousPage,
     Nullable<bool>? hasNextPage,
     Nullable<int>? failCount,
+    Nullable<int>? prevPageFailCount,
+    Nullable<int>? nextPageFailCount,
   }) =>
       PaginatedRemoterData<T>(
         key: key ?? this.key,
@@ -179,6 +187,12 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
             : hasPreviousPage.value,
         hasNextPage: hasNextPage == null ? this.hasNextPage : hasNextPage.value,
         failCount: failCount == null ? this.failCount : failCount.value,
+        prevPageFailCount: prevPageFailCount == null
+            ? this.prevPageFailCount
+            : prevPageFailCount.value,
+        nextPageFailCount: nextPageFailCount == null
+            ? this.nextPageFailCount
+            : nextPageFailCount.value,
       );
 
   /// Creates new copy of [this.data] with mutated element at [index] with [data]

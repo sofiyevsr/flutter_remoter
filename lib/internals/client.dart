@@ -200,7 +200,7 @@ class RemoterClient {
           _dispatch(
             key,
             initialData?.copyWith(
-              failCount: Nullable(attempts),
+              nextPageFailCount: Nullable(attempts),
             ),
           );
           return false;
@@ -219,19 +219,19 @@ class RemoterClient {
       final mergedData = [...initialData!.data!, data as T];
       _dispatch(
         key,
-        PaginatedRemoterData<T>(
+        initialData.copyWith(
           key: key,
-          pageParams: [
+          pageParams: Nullable([
             ...(initialData.pageParams ?? [null]),
-            param
-          ],
-          data: mergedData,
-          hasNextPage: pageFunctions.getNextPageParam?.call(mergedData) != null,
-          hasPreviousPage:
-              pageFunctions.getPreviousPageParam?.call(mergedData) != null,
-          status: RemoterStatus.success,
-          isFetchingNextPage: false,
-          updatedAt: initialData.updatedAt,
+            param,
+          ]),
+          data: Nullable(mergedData),
+          hasNextPage: Nullable(
+              pageFunctions.getNextPageParam?.call(mergedData) != null),
+          hasPreviousPage: Nullable(
+              pageFunctions.getPreviousPageParam?.call(mergedData) != null),
+          isFetchingNextPage: Nullable(false),
+          nextPageFailCount: Nullable(0),
         ),
       );
     } catch (error) {
@@ -280,7 +280,7 @@ class RemoterClient {
           _dispatch(
             key,
             initialData?.copyWith(
-              failCount: Nullable(attempts),
+              prevPageFailCount: Nullable(attempts),
             ),
           );
           return false;
@@ -298,19 +298,19 @@ class RemoterClient {
       final mergedData = [data as T, ...initialData!.data!];
       _dispatch(
         key,
-        PaginatedRemoterData<T>(
+        initialData.copyWith(
           key: key,
-          pageParams: [
+          pageParams: Nullable([
             param,
             ...(initialData.pageParams ?? [null])
-          ],
-          data: mergedData,
-          hasNextPage: pageFunctions.getNextPageParam?.call(mergedData) != null,
-          hasPreviousPage:
-              pageFunctions.getPreviousPageParam?.call(mergedData) != null,
-          status: RemoterStatus.success,
-          isFetchingPreviousPage: false,
-          updatedAt: initialData.updatedAt,
+          ]),
+          data: Nullable(mergedData),
+          hasNextPage: Nullable(
+              pageFunctions.getNextPageParam?.call(mergedData) != null),
+          hasPreviousPage: Nullable(
+              pageFunctions.getPreviousPageParam?.call(mergedData) != null),
+          isFetchingPreviousPage: Nullable(false),
+          prevPageFailCount: Nullable(0),
         ),
       );
     } catch (error) {
@@ -326,7 +326,7 @@ class RemoterClient {
   }
 
   /// Triggers a background fetch for given [key] if there is at least 1 listener
-  /// Ignores [options.staleTime]
+  /// Ignores staleTime
   /// [T] expects any data type
   Future<void> invalidateQuery<T>(String key,
       [int? maxDelay, int? maxRetries]) async {
@@ -561,10 +561,11 @@ class RemoterClient {
                     pagefn?.getPreviousPageParam?.call(modifiedData) != null,
                   ),
                   updatedAt: Nullable(clock.now()),
+                  failCount: Nullable(0),
                 ) ??
                 PaginatedRemoterData<T>(
                   key: key,
-                  pageParams: [null],
+                  pageParams: pageParams,
                   data: [data],
                   hasNextPage: pagefn?.getNextPageParam?.call([data]) != null,
                   hasPreviousPage:
