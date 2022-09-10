@@ -81,7 +81,9 @@ class RemoterClient {
     functions[key] = fn;
 
     // Fetch is in progress already
-    if (initialData != null && initialData.status == RemoterStatus.fetching) {
+    if (initialData != null &&
+        (initialData.status == RemoterStatus.fetching ||
+            initialData.isRefetching == true)) {
       return;
     }
 
@@ -133,7 +135,9 @@ class RemoterClient {
     functions[key] = fn;
 
     // Fetch is in progress already
-    if (initialData != null && initialData.status == RemoterStatus.fetching) {
+    if (initialData != null &&
+        (initialData.status == RemoterStatus.fetching ||
+            initialData.isRefetching == true)) {
       return;
     }
 
@@ -560,6 +564,7 @@ class RemoterClient {
                   ),
                   updatedAt: Nullable(clock.now()),
                   failCount: Nullable(0),
+                  isRefetching: Nullable(false),
                 ) ??
                 PaginatedRemoterData<T>(
                   key: key,
