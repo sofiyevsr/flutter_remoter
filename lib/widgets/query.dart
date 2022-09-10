@@ -36,9 +36,24 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
   RemoterQueryUtils<RemoterData<T>> processUtils() {
     final remoter = RemoterProvider.of(context);
     return RemoterQueryUtils<RemoterData<T>>(
-      invalidateQuery: () =>
-          remoter.client.invalidateQuery<T>(widget.remoterKey),
-      retry: () => remoter.client.retry<T>(widget.remoterKey),
+      refetch: () => remoter.client.fetch<T>(
+        widget.remoterKey,
+        (_) => widget.execute(),
+        staleTime: widget.options?.staleTime,
+        maxDelay: widget.options?.maxDelay,
+        maxRetries: widget.options?.maxRetries,
+        retryOnMount: widget.options?.retryOnMount,
+      ),
+      invalidateQuery: () => remoter.client.invalidateQuery<T>(
+        widget.remoterKey,
+        widget.options?.maxDelay,
+        widget.options?.maxRetries,
+      ),
+      retry: () => remoter.client.retry<T>(
+        widget.remoterKey,
+        widget.options?.maxDelay,
+        widget.options?.maxRetries,
+      ),
       setData: (data) =>
           remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
     );
@@ -57,7 +72,10 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
     provider.client.fetch<T>(
       widget.remoterKey,
       (_) => widget.execute(),
-      widget.options?.staleTime,
+      staleTime: widget.options?.staleTime,
+      maxDelay: widget.options?.maxDelay,
+      maxRetries: widget.options?.maxRetries,
+      retryOnMount: widget.options?.retryOnMount,
     );
     subscription = provider.client
         .getStream<RemoterData<T>, T>(

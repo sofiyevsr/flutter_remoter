@@ -1,12 +1,27 @@
 import 'package:clock/clock.dart';
 
-/// Both [staleTime] and [cacheTime] should be in milliseconds
+/// Defines options for [RemoterClient], [RemoterQuery] and [PaginatedRemoterQuery]
 class RemoterClientOptions {
+  /// Defines after how many ms after query data is considered as stale
   final int staleTime;
+
+  /// Defines after how many ms after all listeners unmounted cache should be cleared
   final int cacheTime;
+
+  /// Maximum delay between retries
+  final int maxDelay;
+
+  /// Maximum amount of retries
+  final int maxRetries;
+
+  /// Flag that decides if query that has error status should be refetched on mount
+  final bool retryOnMount;
   RemoterClientOptions({
     this.staleTime = 0,
     this.cacheTime = 5 * 1000 * 60,
+    this.maxDelay = 5 * 1000 * 60,
+    this.maxRetries = 3,
+    this.retryOnMount = true,
   });
 }
 
@@ -57,6 +72,7 @@ abstract class BaseRemoterData<T> {
 /// [T] represents the type of data fetched in the query
 class RemoterData<T> extends BaseRemoterData<T> {
   final T? data;
+  final int failCount;
   RemoterData({
     required super.key,
     required this.data,
@@ -64,7 +80,8 @@ class RemoterData<T> extends BaseRemoterData<T> {
     super.error,
     super.status,
     super.isRefetching,
-  });
+    int? failCount,
+  }) : failCount = failCount ?? 0;
   RemoterData<T> copyWith({
     String? key,
     Nullable<T>? data,
@@ -72,6 +89,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
     Nullable<DateTime>? updatedAt,
     Nullable<RemoterStatus>? status,
     Nullable<bool>? isRefetching,
+    Nullable<int>? failCount,
   }) =>
       RemoterData<T>(
         key: key ?? this.key,
@@ -81,6 +99,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
         status: status == null ? this.status : status.value,
         isRefetching:
             isRefetching == null ? this.isRefetching : isRefetching.value,
+        failCount: failCount == null ? this.failCount : failCount.value,
       );
 }
 
@@ -89,6 +108,9 @@ class RemoterData<T> extends BaseRemoterData<T> {
 class PaginatedRemoterData<T> extends BaseRemoterData<T> {
   final List<RemoterParam?>? pageParams;
   final List<T>? data;
+  final int failCount;
+  final int prevPageFailCount;
+  final int nextPageFailCount;
   final bool isFetchingNextPage;
   final bool isFetchingPreviousPage;
   final bool isPreviousPageError;
@@ -103,6 +125,9 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     super.error,
     super.status,
     super.isRefetching,
+    int? failCount,
+    int? prevPageFailCount,
+    int? nextPageFailCount,
     bool? isFetchingPreviousPage,
     bool? isFetchingNextPage,
     bool? isPreviousPageError,
@@ -114,7 +139,10 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
         isPreviousPageError = isPreviousPageError ?? false,
         isNextPageError = isNextPageError ?? false,
         hasPreviousPage = hasPreviousPage ?? false,
-        hasNextPage = hasNextPage ?? false;
+        hasNextPage = hasNextPage ?? false,
+        failCount = failCount ?? 0,
+        prevPageFailCount = prevPageFailCount ?? 0,
+        nextPageFailCount = nextPageFailCount ?? 0;
   PaginatedRemoterData<T> copyWith({
     String? key,
     Nullable<List<T>>? data,
@@ -129,6 +157,9 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     Nullable<bool>? isNextPageError,
     Nullable<bool>? hasPreviousPage,
     Nullable<bool>? hasNextPage,
+    Nullable<int>? failCount,
+    Nullable<int>? prevPageFailCount,
+    Nullable<int>? nextPageFailCount,
   }) =>
       PaginatedRemoterData<T>(
         key: key ?? this.key,
@@ -155,6 +186,13 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
             ? this.hasPreviousPage
             : hasPreviousPage.value,
         hasNextPage: hasNextPage == null ? this.hasNextPage : hasNextPage.value,
+        failCount: failCount == null ? this.failCount : failCount.value,
+        prevPageFailCount: prevPageFailCount == null
+            ? this.prevPageFailCount
+            : prevPageFailCount.value,
+        nextPageFailCount: nextPageFailCount == null
+            ? this.nextPageFailCount
+            : nextPageFailCount.value,
       );
 
   /// Creates new copy of [this.data] with mutated element at [index] with [data]
