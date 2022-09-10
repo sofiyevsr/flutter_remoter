@@ -81,9 +81,7 @@ class RemoterClient {
     functions[key] = fn;
 
     // Fetch is in progress already
-    if (initialData != null &&
-        (initialData.status == RemoterStatus.fetching ||
-            initialData.isRefetching == true)) {
+    if (initialData != null && initialData.status == RemoterStatus.fetching) {
       return;
     }
 
@@ -135,9 +133,7 @@ class RemoterClient {
     functions[key] = fn;
 
     // Fetch is in progress already
-    if (initialData != null &&
-        (initialData.status == RemoterStatus.fetching ||
-            initialData.isRefetching == true)) {
+    if (initialData != null && initialData.status == RemoterStatus.fetching) {
       return;
     }
 
@@ -233,6 +229,8 @@ class RemoterClient {
         ),
       );
     } catch (error) {
+      // Update data because fetch function can mutate failCount
+      initialData = getData<PaginatedRemoterData<T>>(key);
       _dispatch(
         key,
         initialData?.copyWith(
@@ -310,6 +308,8 @@ class RemoterClient {
         ),
       );
     } catch (error) {
+      // Update data because fetch function can mutate failCount
+      initialData = getData<PaginatedRemoterData<T>>(key);
       _dispatch(
         key,
         initialData?.copyWith(
@@ -489,6 +489,8 @@ class RemoterClient {
         ),
       );
     } catch (error) {
+      // Update data because fetch function can mutate failCount
+      initialData = getData<RemoterData<T>>(key);
       _dispatch(
         key,
         RemoterData<T>(
@@ -570,7 +572,9 @@ class RemoterClient {
                 ),
           );
         } catch (error) {
-          if (initialData == null) {
+          // Update data because fetch function can mutate failCount
+          initialData = getData<PaginatedRemoterData<T>>(key);
+          if (initialData?.data == null) {
             _dispatch(
               key,
               PaginatedRemoterData<T>(
