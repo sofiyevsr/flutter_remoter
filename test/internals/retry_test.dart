@@ -13,7 +13,7 @@ void main() {
 
     runFakeAsync((time) async {
       expect(
-        retryFuture(() => getData(), maxDelay: 1000, maxRetries: 3),
+        retryFuture(getData, maxDelay: 1000, maxRetries: 3),
         throwsA(isA<Error>()),
       );
       time.elapse(
@@ -33,7 +33,7 @@ void main() {
     runFakeAsync((time) async {
       expect(
         retryFuture(
-          () => getData(),
+          getData,
           onFail: (_) => true,
           maxDelay: 1000,
           maxRetries: 3,
