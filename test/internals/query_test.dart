@@ -22,7 +22,7 @@ void main() {
 
     test("retry works on query error status", () async {
       final client = RemoterClient(
-        options: RemoterClientOptions(maxAttempts: 0),
+        options: RemoterClientOptions(maxRetries: 0),
       );
       bool passError = false;
       await client.fetch<String>("cache", (_) {

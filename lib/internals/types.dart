@@ -12,7 +12,7 @@ class RemoterClientOptions {
   final int maxDelay;
 
   /// Maximum amount of retries
-  final int maxAttempts;
+  final int maxRetries;
 
   /// Flag that decides if query that has error status should be refetched on mount
   final bool retryOnMount;
@@ -20,7 +20,7 @@ class RemoterClientOptions {
     this.staleTime = 0,
     this.cacheTime = 5 * 1000 * 60,
     this.maxDelay = 5 * 1000 * 60,
-    this.maxAttempts = 3,
+    this.maxRetries = 3,
     this.retryOnMount = true,
   });
 }

@@ -41,18 +41,18 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
         (_) => widget.execute(),
         staleTime: widget.options?.staleTime,
         maxDelay: widget.options?.maxDelay,
-        maxAttempts: widget.options?.maxAttempts,
+        maxRetries: widget.options?.maxRetries,
         retryOnMount: widget.options?.retryOnMount,
       ),
       invalidateQuery: () => remoter.client.invalidateQuery<T>(
         widget.remoterKey,
         widget.options?.maxDelay,
-        widget.options?.maxAttempts,
+        widget.options?.maxRetries,
       ),
       retry: () => remoter.client.retry<T>(
         widget.remoterKey,
         widget.options?.maxDelay,
-        widget.options?.maxAttempts,
+        widget.options?.maxRetries,
       ),
       setData: (data) =>
           remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
@@ -74,7 +74,7 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
       (_) => widget.execute(),
       staleTime: widget.options?.staleTime,
       maxDelay: widget.options?.maxDelay,
-      maxAttempts: widget.options?.maxAttempts,
+      maxRetries: widget.options?.maxRetries,
       retryOnMount: widget.options?.retryOnMount,
     );
     subscription = provider.client
