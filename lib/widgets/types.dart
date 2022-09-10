@@ -1,13 +1,14 @@
 import 'dart:async';
-
 import 'package:flutter_remoter/internals/types.dart';
 
-abstract class RemoterUtils<T> {
+/// Represents class for utils which is passed to builder function for [RemoterQuery]
+/// These function doesn't add any functionality to [RemoterClient] methods
+class RemoterQueryUtils<T> {
   final FutureOr Function() invalidateQuery;
   final FutureOr Function() retry;
   final FutureOr Function() refetch;
   final FutureOr Function(T data) setData;
-  RemoterUtils({
+  RemoterQueryUtils({
     required this.invalidateQuery,
     required this.retry,
     required this.setData,
@@ -15,21 +16,14 @@ abstract class RemoterUtils<T> {
   });
 }
 
-class RemoterPaginatedUtils<T> extends RemoterUtils<T> {
+/// Represents class for utils which is passed to builder function for [PaginatedRemoterQuery]
+/// These function doesn't add any functionality to [RemoterClient] methods
+class RemoterPaginatedUtils<T> extends RemoterQueryUtils<T> {
   final FutureOr Function() fetchNextPage;
   final FutureOr Function() fetchPreviousPage;
   RemoterPaginatedUtils({
     required this.fetchNextPage,
     required this.fetchPreviousPage,
-    required super.invalidateQuery,
-    required super.retry,
-    required super.setData,
-    required super.refetch,
-  });
-}
-
-class RemoterQueryUtils<T> extends RemoterUtils<T> {
-  RemoterQueryUtils({
     required super.invalidateQuery,
     required super.retry,
     required super.setData,

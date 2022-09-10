@@ -6,11 +6,20 @@ import 'types.dart';
 import 'cache.dart';
 import 'stream_utils.dart';
 
-/// Function type for query's fetch function
-typedef FetchFunction<T> = FutureOr<T> Function(RemoterParam? pageParam);
+/// Function type for query's execute function
+typedef ExecuteFunction<T> = FutureOr<T> Function(RemoterParam? pageParam);
 
 /// Client that processes query actions and holds cache data
 /// [options] holds global options which is used on each query
+/// see [RemoterClientOptions] for more details
+/// ### IMPORTANT
+/// Client methods can be used anywhere in application
+/// but generics from methods should not be omitted and should be same as the one used in widgets,
+/// otherwise runtime errors will occur
+/// For instance, in order to invalidate RemoterQuery<CatFacts>(remoterkey: "cat_facts"),
+/// client.invalidateQuery<CatFacts>("cat_facts") should be called
+/// All methods expects either T, RemoterData<T> or PaginatedRemoterData<T>,
+/// see method's doc for required generic type
 class RemoterClient {
   final RemoterClientOptions options;
 
@@ -18,7 +27,7 @@ class RemoterClient {
   final Map<String, int> listeners = {};
 
   /// Storage for functions for each key to be used in retry and refetch
-  final Map<String, FetchFunction> functions = {};
+  final Map<String, ExecuteFunction> functions = {};
 
   /// Function defining parameters to get data for new pages
   final Map<String, PaginatedQueryFunctions> paginatedQueryFunctions = {};
@@ -68,12 +77,13 @@ class RemoterClient {
   /// [T] expects any data type
   Future<void> fetch<T>(
     String key,
-    FetchFunction fn, {
+    ExecuteFunction fn, {
     int? staleTime,
     int? maxDelay,
     int? maxRetries,
     bool? retryOnMount,
   }) async {
+    staleTime = staleTime ?? options.staleTime;
     maxDelay = maxDelay ?? options.maxDelay;
     maxRetries = maxRetries ?? options.maxRetries;
     retryOnMount = retryOnMount ?? options.retryOnMount;
@@ -122,12 +132,13 @@ class RemoterClient {
   /// [T] expects any data type
   Future<void> fetchPaginated<T>(
     String key,
-    FetchFunction fn, {
+    ExecuteFunction fn, {
     int? staleTime,
     int? maxDelay,
     int? maxRetries,
     bool? retryOnMount,
   }) async {
+    staleTime = staleTime ?? options.staleTime;
     maxDelay = maxDelay ?? options.maxDelay;
     maxRetries = maxRetries ?? options.maxRetries;
     retryOnMount = retryOnMount ?? options.retryOnMount;
@@ -438,11 +449,11 @@ class RemoterClient {
   }
 
   /// Return if query is stale based on [staleTime]
-  bool isQueryStale(String key, [int? staleTime]) {
+  bool isQueryStale(String key, int staleTime) {
     final entry = getData<BaseRemoterData>(key);
     if (entry == null) return true;
-    final isStale = clock.now().difference(entry.updatedAt).inMilliseconds >=
-        (staleTime ?? options.staleTime);
+    final isStale =
+        clock.now().difference(entry.updatedAt).inMilliseconds >= staleTime;
     return isStale;
   }
 
@@ -558,6 +569,7 @@ class RemoterClient {
           _dispatch(
             key,
             initialData?.copyWith(
+                  error: Nullable(null),
                   status: Nullable(RemoterStatus.success),
                   data: Nullable(modifiedData),
                   hasNextPage: Nullable(
