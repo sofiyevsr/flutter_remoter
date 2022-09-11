@@ -55,14 +55,12 @@ void main() {
     });
 
     test("is stale works", () async {
-      final client = RemoterClient(
-        options: RemoterClientOptions(staleTime: 1000),
-      );
+      final client = RemoterClient();
       runFakeAsync((async) async {
         await client.fetch<String>("cache", (_) => "test");
-        expect(client.isQueryStale("cache"), false);
+        expect(client.isQueryStale("cache", 1000), false);
         async.elapse(const Duration(milliseconds: 1000));
-        expect(client.isQueryStale("cache"), true);
+        expect(client.isQueryStale("cache", 1000), true);
       });
     });
   });
