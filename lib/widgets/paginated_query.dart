@@ -21,6 +21,9 @@ import 'package:flutter_remoter/widgets/types.dart';
 ///       execute: (param) async {
 ///         // Fetch data here
 ///       },
+///       listener: (oldState, newState) async {
+///         // Optional state listener
+///       },
 ///       builder: (context, snapshot, utils) {
 ///         if (snapshot.status == RemoterStatus.idle) {
 ///           // You can skip this check if you don't use disabled parameter

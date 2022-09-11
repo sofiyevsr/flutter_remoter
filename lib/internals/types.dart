@@ -68,7 +68,7 @@ abstract class BaseRemoterData<T> {
   /// Unique identifier of data
   String key;
 
-  /// Represents state of data, default RemoterStatus.idle
+  /// Represents state of data, default [RemoterStatus.idle]
   RemoterStatus status;
 
   /// Represents last time data is updated, default now
@@ -78,6 +78,7 @@ abstract class BaseRemoterData<T> {
   bool isRefetching;
 
   /// Represents error object if status is [RemoterStatus.error]
+  /// also can be non-null if next or previous page fetch fails
   Object? error;
   BaseRemoterData({
     required this.key,
@@ -269,9 +270,9 @@ class CacheEvent<T> {
   }
 }
 
-/// Function that are saved on [RemoterClient] when widget mounts
+/// Functions are saved on [RemoterClient] when widget mounts
 /// [RemoterClient] uses these to fetch following pages
-/// pages represents all pages in current query
+/// `pages` represents all pages in current query
 /// Query should have [RemoterStatus.success] status to be able to call these functions
 class PaginatedQueryFunctions<T> {
   final dynamic Function(List<T> pages)? getPreviousPageParam;
