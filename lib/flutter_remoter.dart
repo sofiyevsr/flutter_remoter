@@ -1,5 +1,5 @@
 /// Remoter aims to simplify handling asynchronous operations and revalidating them.
-/// [Learn more](https://github.com/sofiyevsr/remoter)
+/// [Learn more](https://github.com/sofiyevsr/flutter_remoter)
 library flutter_remoter;
 
 export "widgets/provider.dart";
