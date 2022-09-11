@@ -271,7 +271,7 @@ class CacheEvent<T> {
 
 /// Function that are saved on [RemoterClient] when widget mounts
 /// [RemoterClient] uses these to fetch following pages
-/// [pages] represents all pages in current query
+/// pages represents all pages in current query
 /// Query should have [RemoterStatus.success] status to be able to call these functions
 class PaginatedQueryFunctions<T> {
   final dynamic Function(List<T> pages)? getPreviousPageParam;

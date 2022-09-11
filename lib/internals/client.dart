@@ -12,12 +12,12 @@ typedef ExecuteFunction<T> = FutureOr<T> Function(RemoterParam? pageParam);
 /// Client that processes query actions and holds cache data
 /// [options] holds global options which is used on each query
 /// see [RemoterClientOptions] for more details
-/// ### IMPORTANT
+/// ## IMPORTANT
 /// Client methods can be used anywhere in application
 /// but generics from methods should not be omitted and should be same as the one used in widgets,
 /// otherwise runtime errors will occur
-/// For instance, in order to invalidate RemoterQuery<CatFacts>(remoterkey: "cat_facts"),
-/// client.invalidateQuery<CatFacts>("cat_facts") should be called
+/// For instance, in order to invalidate `RemoterQuery<CatFacts>(remoterkey: "cat_facts")`,
+/// `client.invalidateQuery<CatFacts>("cat_facts")` should be called
 /// All methods expects either T, RemoterData<T> or PaginatedRemoterData<T>,
 /// see method's doc for required generic type
 class RemoterClient {

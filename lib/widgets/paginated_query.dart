@@ -43,7 +43,7 @@ class PaginatedRemoterQuery<T> extends StatefulWidget {
   final FutureOr<T> Function(RemoterParam? param) execute;
 
   /// Builder method that is called if data updates
-  /// [utils] is collection of useful methods such as fetchNextPage, fetchPreviousPage and etc.
+  /// utils is collection of useful methods such as fetchNextPage, fetchPreviousPage and etc.
   final Widget Function(
     BuildContext context,
     PaginatedRemoterData<T> snapshot,

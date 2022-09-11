@@ -40,7 +40,7 @@ class RemoterQuery<T> extends StatefulWidget {
   final FutureOr<T> Function() execute;
 
   /// Builder method that is called if data updates
-  /// [utils] is collection of useful methods such as setData, refetch and etc.
+  /// utils is collection of useful methods such as setData, refetch and etc.
   final Widget Function(
     BuildContext context,
     RemoterData<T> snapshot,
