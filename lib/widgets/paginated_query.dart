@@ -5,20 +5,73 @@ import 'package:flutter_remoter/internals/types.dart';
 import 'package:flutter_remoter/widgets/provider.dart';
 import 'package:flutter_remoter/widgets/types.dart';
 
+/// Used for data that has multiple pages or "infinite scroll" like experience.
+/// If [T] generic is used, all [RemoterClient] method calls should be called with [T],
+/// otherwise runtime type casting error will be thrown
+///
+/// ```dart
+/// PaginatedRemoterQuery<T>(
+///       remoterKey: "key",
+///       getNextPageParam: (pages) {
+///         return pages[pages.length - 1].nextPage;
+///       },
+///       getPreviousPageParam: (pages) {
+///         return pages[0].previousPage;
+///       },
+///       execute: (param) async {
+///         // Fetch data here
+///       },
+///       listener: (oldState, newState) async {
+///         // Optional state listener
+///       },
+///       builder: (context, snapshot, utils) {
+///         if (snapshot.status == RemoterStatus.idle) {
+///           // You can skip this check if you don't use disabled parameter
+///         }
+///         if (snapshot.status == RemoterStatus.fetching) {
+///           // Handle fetching state here
+///         }
+///         if (snapshot.status == RemoterStatus.error) {
+///           // Handle error here
+///         }
+///         // It is okay to use snapshot.data! here
+///         return ...
+///       })
+///```
 class PaginatedRemoterQuery<T> extends StatefulWidget {
+  /// Unique identifier for query
   final String remoterKey;
-  final FutureOr<T> Function(RemoterParam?) execute;
+
+  /// Function to fetch data, receives parameter of [RemoterParam] which is data returned from [getNextPageParam] or [getPreviousPageParam]
+  final FutureOr<T> Function(RemoterParam? param) execute;
+
+  /// Builder method that is called if data updates
+  /// utils is collection of useful methods such as fetchNextPage, fetchPreviousPage and etc.
   final Widget Function(
-    BuildContext,
-    PaginatedRemoterData<T>,
+    BuildContext context,
+    PaginatedRemoterData<T> snapshot,
     RemoterPaginatedUtils utils,
   ) builder;
+
+  /// Listener function that receives updates of data
   final Function(
-          PaginatedRemoterData<T> oldState, PaginatedRemoterData<T> newState)?
-      listener;
+    PaginatedRemoterData<T> oldState,
+    PaginatedRemoterData<T> newState,
+  )? listener;
+
+  /// Function receives current pages array and returns dynamic value which will be passed to [execute]
+  /// Returning null means no more next page is available
   final dynamic Function(List<T>)? getNextPageParam;
+
+  /// Function receives current pages array and returns dynamic value which will be passed to [execute]
+  /// Returning null means no more previous page is available
   final dynamic Function(List<T>)? getPreviousPageParam;
+
+  /// Options that will be applied to only this query
+  /// Omitted values in options will still fallback to top level options
   final RemoterClientOptions? options;
+
+  /// Query won't start executing if [disabled] is true
   final bool? disabled;
   const PaginatedRemoterQuery({
     super.key,
@@ -107,7 +160,9 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
     );
     subscription = provider.client
         .getStream<PaginatedRemoterData<T>, T>(
-            widget.remoterKey, widget.options?.cacheTime)
+      widget.remoterKey,
+      widget.options?.cacheTime,
+    )
         .listen((event) {
       widget.listener?.call(data, event);
       setState(() {

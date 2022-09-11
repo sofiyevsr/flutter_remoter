@@ -1,6 +1,22 @@
 import 'package:clock/clock.dart';
+import 'package:flutter_remoter/flutter_remoter.dart';
 
 /// Defines options for [RemoterClient], [RemoterQuery] and [PaginatedRemoterQuery]
+///
+/// ```dart
+/// RemoterClientOptions(
+///       // staleTime defines how many ms after query fetched can be refetched
+///       staleTime: 0,
+///       // cacheTime defines how many ms after all listeners are gone query data should be cleared,
+///       cacheTime: 5 * 60 * 1000,
+///       // Maximum delay between retries in ms
+///       maxDelay: 5 * 60 * 1000,
+///       // Maximum amount of retries
+///       maxRetries: 3,
+///       // Flag that decides if query that has error status should be refetched on mount
+///       retryOnMount: true,
+/// )
+/// ```
 class RemoterClientOptions {
   /// Defines after how many ms after query data is considered as stale
   final int staleTime;
@@ -8,7 +24,7 @@ class RemoterClientOptions {
   /// Defines after how many ms after all listeners unmounted cache should be cleared
   final int cacheTime;
 
-  /// Maximum delay between retries
+  /// Maximum delay between retries in ms
   final int maxDelay;
 
   /// Maximum amount of retries
@@ -47,11 +63,22 @@ class RemoterParam<T> {
   RemoterParam({required this.value, required this.type});
 }
 
+/// Represents abstraction for [RemoterData] and [PaginatedRemoterData]
 abstract class BaseRemoterData<T> {
+  /// Unique identifier of data
   String key;
+
+  /// Represents state of data, default [RemoterStatus.idle]
   RemoterStatus status;
+
+  /// Represents last time data is updated, default now
   DateTime updatedAt;
+
+  /// True if query refetch is in progress, default false
   bool isRefetching;
+
+  /// Represents error object if status is [RemoterStatus.error]
+  /// also can be non-null if next or previous page fetch fails
   Object? error;
   BaseRemoterData({
     required this.key,
@@ -71,7 +98,10 @@ abstract class BaseRemoterData<T> {
 /// Represents data fetched for [RemoterQuery]
 /// [T] represents the type of data fetched in the query
 class RemoterData<T> extends BaseRemoterData<T> {
+  /// Represents data execute function returns on [RemoterStatus.success]
   final T? data;
+
+  /// Represents how many times execute function failed while fetching this query, default 0
   final int failCount;
   RemoterData({
     required super.key,
@@ -106,17 +136,41 @@ class RemoterData<T> extends BaseRemoterData<T> {
 /// Represents data fetched for [PaginatedRemoterQuery]
 /// [T] represents the type of data in list of pages fetched in the query
 class PaginatedRemoterData<T> extends BaseRemoterData<T> {
+  /// Stores parameters used to call fetch function with
   final List<RemoterParam?>? pageParams;
+
+  /// Represents data in list of pages
+  /// execute function returns based on [pageParams] on [RemoterStatus.success]
   final List<T>? data;
+
+  /// Represents how many times execute function failed while fetching this query, default 0
   final int failCount;
+
+  /// Represents how many times execute function failed while fetching previous page, default 0
   final int prevPageFailCount;
+
+  /// Represents how many times execute function failed while fetching next page, default 0
   final int nextPageFailCount;
-  final bool isFetchingNextPage;
+
+  /// Represents if currently fetching previous page
   final bool isFetchingPreviousPage;
+
+  /// Represents if currently fetching next page
+  final bool isFetchingNextPage;
+
+  /// Represents if error occured while fetching previous page
+  /// [error] field stores thrown error
   final bool isPreviousPageError;
+
+  /// Represents if error occured while fetching next page
+  /// [error] field stores thrown error
   final bool isNextPageError;
-  final bool hasNextPage;
+
+  /// Indicates if query has previous page
   final bool hasPreviousPage;
+
+  /// Indicates if query has next page
+  final bool hasNextPage;
   PaginatedRemoterData({
     required super.key,
     required this.data,
@@ -216,6 +270,10 @@ class CacheEvent<T> {
   }
 }
 
+/// Functions are saved on [RemoterClient] when widget mounts
+/// [RemoterClient] uses these to fetch following pages
+/// `pages` represents all pages in current query
+/// Query should have [RemoterStatus.success] status to be able to call these functions
 class PaginatedQueryFunctions<T> {
   final dynamic Function(List<T> pages)? getPreviousPageParam;
   final dynamic Function(List<T> pages)? getNextPageParam;
@@ -225,7 +283,7 @@ class PaginatedQueryFunctions<T> {
   });
 }
 
-/// Used to distinguish ommited parameter and null
+/// Used to distinguish omitted parameter and null
 class Nullable<T> {
   final T? value;
   Nullable(this.value);

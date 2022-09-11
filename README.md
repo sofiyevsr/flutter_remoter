@@ -32,6 +32,8 @@ dependencies:
 
 ### Wrap your app with RemoterProvider
 
+RemoterProvider expects a RemoterClient which you can export from package and use everywhere without context.
+
 ```dart
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -49,6 +51,12 @@ class MyApp extends StatelessWidget {
             // cacheTime defines how many ms after all listeners are gone query data should be cleared,
             // default is 5 minutes
             cacheTime: 5 * 60 * 1000,
+            // Maximum delay between retries in ms
+            maxDelay: 5 * 60 * 1000,
+            // Maximum amount of retries
+            maxRetries: 3,
+            // Flag that decides if query that has error status should be refetched on mount
+            retryOnMount: true,
             ),
       ),
       child: const MaterialApp(
@@ -61,7 +69,11 @@ class MyApp extends StatelessWidget {
 
 ## Usage
 
-### Paginated Query
+There are three types of widgets: PaginatedRemoterQuery, RemoterQuery and RemoterMutation.
+
+### Paginated Remoter Query
+
+Used for data that has multiple pages or "infinite scroll" like experience.
 
 > See [full example](https://github.com/sofiyevsr/remoter/tree/master/examples/pagination)
 

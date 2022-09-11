@@ -5,13 +5,56 @@ import 'package:flutter_remoter/internals/types.dart';
 import 'package:flutter_remoter/widgets/provider.dart';
 import 'package:flutter_remoter/widgets/types.dart';
 
+/// Used for fetching remote data, revalidating it and etc.
+/// If [T] generic is used, all [RemoterClient] method calls should be called with [T],
+/// otherwise runtime type casting error will be thrown
+///
+/// ```dart
+/// RemoterQuery<T>(
+///       remoterKey: "key",
+///       listener: (oldState, newState) async {
+///         // Optional state listener
+///       },
+///       execute: (param) async {
+///         // Fetch data here
+///       },
+///       builder: (context, snapshot, utils) {
+///         if (snapshot.status == RemoterStatus.idle) {
+///           // You can skip this check if you don't use disabled parameter
+///         }
+///         if (snapshot.status == RemoterStatus.fetching) {
+///           // Handle fetching state here
+///         }
+///         if (snapshot.status == RemoterStatus.error) {
+///           // Handle error here
+///         }
+///         // It is okay to use snapshot.data! here
+///         return ...
+///       })
+///```
 class RemoterQuery<T> extends StatefulWidget {
+  /// Unique identifier for query
   final String remoterKey;
+
+  /// Function to fetch data
   final FutureOr<T> Function() execute;
-  final Widget Function(BuildContext, RemoterData<T>, RemoterQueryUtils utils)
-      builder;
+
+  /// Builder method that is called if data updates
+  /// utils is collection of useful methods such as setData, refetch and etc.
+  final Widget Function(
+    BuildContext context,
+    RemoterData<T> snapshot,
+    RemoterQueryUtils utils,
+  ) builder;
+
+  /// Listener function that receives updates of data
   final Function(RemoterData<T> oldState, RemoterData<T> newState)? listener;
+
+  /// Options that will be applied to only this query
+  /// Omitted values in options will still fallback to top level options
   final RemoterClientOptions? options;
+
+  /// Query won't start executing if [disabled] is true
   final bool? disabled;
   const RemoterQuery({
     super.key,
