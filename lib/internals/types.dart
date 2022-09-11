@@ -9,7 +9,7 @@ import 'package:flutter_remoter/flutter_remoter.dart';
 ///       staleTime: 0,
 ///       // cacheTime defines how many ms after all listeners are gone query data should be cleared,
 ///       cacheTime: 5 * 60 * 1000,
-///       // Maximum delay between retries
+///       // Maximum delay between retries in ms
 ///       maxDelay: 5 * 60 * 1000,
 ///       // Maximum amount of retries
 ///       maxRetries: 3,
@@ -24,7 +24,7 @@ class RemoterClientOptions {
   /// Defines after how many ms after all listeners unmounted cache should be cleared
   final int cacheTime;
 
-  /// Maximum delay between retries
+  /// Maximum delay between retries in ms
   final int maxDelay;
 
   /// Maximum amount of retries

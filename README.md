@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
             // cacheTime defines how many ms after all listeners are gone query data should be cleared,
             // default is 5 minutes
             cacheTime: 5 * 60 * 1000,
-            // Maximum delay between retries
+            // Maximum delay between retries in ms
             maxDelay: 5 * 60 * 1000,
             // Maximum amount of retries
             maxRetries: 3,
