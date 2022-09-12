@@ -4,7 +4,7 @@ import 'package:flutter_remoter/flutter_remoter.dart';
 /// Defines options for [RemoterClient], [RemoterQuery] and [PaginatedRemoterQuery]
 ///
 /// ```dart
-/// RemoterClientOptions(
+/// RemoterOptions(
 ///       // staleTime defines how many ms after query fetched can be refetched
 ///       staleTime: 0,
 ///       // cacheTime defines how many ms after all listeners are gone query data should be cleared,
@@ -17,7 +17,7 @@ import 'package:flutter_remoter/flutter_remoter.dart';
 ///       retryOnMount: true,
 /// )
 /// ```
-class RemoterClientOptions {
+class RemoterOptions {
   /// Defines after how many ms after query data is considered as stale
   final Default<int> staleTime;
 
@@ -32,7 +32,7 @@ class RemoterClientOptions {
 
   /// Flag that decides if query that has error status should be refetched on mount
   final Default<bool> retryOnMount;
-  RemoterClientOptions({
+  RemoterOptions({
     int? staleTime,
     int? cacheTime,
     int? maxDelay,

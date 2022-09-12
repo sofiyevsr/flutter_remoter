@@ -69,7 +69,7 @@ class PaginatedRemoterQuery<T> extends StatefulWidget {
 
   /// Options that will be applied to only this query
   /// Omitted values in options will still fallback to top level options
-  final RemoterClientOptions? options;
+  final RemoterOptions? options;
 
   /// Query won't start executing if [disabled] is true
   final bool? disabled;

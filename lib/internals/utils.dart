@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_remoter/internals/types.dart';
 
-RemoterClientOptions flattenOptions(
-  RemoterClientOptions topLevelOptions,
-  RemoterClientOptions? options,
+RemoterOptions flattenOptions(
+  RemoterOptions topLevelOptions,
+  RemoterOptions? options,
 ) {
   if (options == null) {
     return topLevelOptions;
@@ -24,7 +24,7 @@ RemoterClientOptions flattenOptions(
   final retryOnMount = options.retryOnMount.isDefault == false
       ? options.retryOnMount.value
       : topLevelOptions.retryOnMount.value;
-  return RemoterClientOptions(
+  return RemoterOptions(
     staleTime: staleTime,
     cacheTime: cacheTime,
     maxDelay: maxDelay,

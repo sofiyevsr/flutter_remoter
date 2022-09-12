@@ -11,7 +11,7 @@ typedef ExecuteFunction<T> = FutureOr<T> Function(RemoterParam? pageParam);
 
 /// Client that processes query actions and holds cache data
 /// [options] holds global options which is used on each query
-/// see [RemoterClientOptions] for more details
+/// see [RemoterOptions] for more details
 /// ## IMPORTANT
 /// Client methods can be used anywhere in application
 /// but generics from methods should not be omitted and should be same as the one used in widgets,
@@ -21,7 +21,7 @@ typedef ExecuteFunction<T> = FutureOr<T> Function(RemoterParam? pageParam);
 /// All methods expects either T, RemoterData<T> or PaginatedRemoterData<T>,
 /// see method's doc for required generic type
 class RemoterClient {
-  final RemoterClientOptions options;
+  final RemoterOptions options;
 
   /// Count of listeners of each key
   final Map<String, int> listeners = {};
@@ -39,13 +39,13 @@ class RemoterClient {
   final StreamController _cacheStream = StreamController.broadcast();
 
   /// [options] can be overriden in each query widget
-  RemoterClient({RemoterClientOptions? options})
-      : options = options ?? RemoterClientOptions();
+  RemoterClient({RemoterOptions? options})
+      : options = options ?? RemoterOptions();
 
   /// Returns new [Stream] which gets cache entry if exists as first data
   /// [T] expects [RemoterData] or [PaginatedRemoterData] type
   Stream<T> getStream<T extends BaseRemoterData, S>(String key,
-      [RemoterClientOptions? options]) {
+      [RemoterOptions? options]) {
     final flatOptions = flattenOptions(this.options, options);
     T? cachedValue = getData<T>(key);
     if (cachedValue == null || cachedValue.status != RemoterStatus.success) {
@@ -77,7 +77,7 @@ class RemoterClient {
   /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
   Future<void> fetch<T>(String key, ExecuteFunction fn,
-      [RemoterClientOptions? options]) async {
+      [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<RemoterData<T>>(key);
     functions[key] = fn;
@@ -125,7 +125,7 @@ class RemoterClient {
   /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
   Future<void> fetchPaginated<T>(String key, ExecuteFunction fn,
-      [RemoterClientOptions? options]) async {
+      [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<PaginatedRemoterData<T>>(key);
     functions[key] = fn;
@@ -169,7 +169,7 @@ class RemoterClient {
   /// if [PaginatedRemoterData.hasNextPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchNextPage<T>(String key,
-      [RemoterClientOptions? options]) async {
+      [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     var initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
@@ -249,7 +249,7 @@ class RemoterClient {
   /// if [PaginatedRemoterData.hasPreviousPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchPreviousPage<T>(String key,
-      [RemoterClientOptions? options]) async {
+      [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     var initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
@@ -329,7 +329,7 @@ class RemoterClient {
   /// Ignores staleTime
   /// [T] expects any data type
   Future<void> invalidateQuery<T>(String key,
-      [RemoterClientOptions? options]) async {
+      [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];
@@ -362,7 +362,7 @@ class RemoterClient {
   /// Retries failed query
   /// Query should have status of [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> retry<T>(String key, [RemoterClientOptions? options]) async {
+  Future<void> retry<T>(String key, [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];

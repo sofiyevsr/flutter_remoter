@@ -35,7 +35,7 @@ void main() {
             count += 1;
             throw Error();
           },
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         time.elapse(const Duration(seconds: 0));
         final data = client.getData<RemoterData<String>>("cache");
@@ -54,7 +54,7 @@ void main() {
             count += 1;
             throw Error();
           },
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         time.elapse(const Duration(seconds: 0));
         final data = client.getData<PaginatedRemoterData<String>>("cache");
@@ -79,7 +79,7 @@ void main() {
             if (count == 3) return "result";
             throw Error();
           },
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         time.elapse(const Duration(seconds: 0));
         client.dispose();
@@ -119,7 +119,7 @@ void main() {
             if (count == 3) return "result";
             throw Error();
           },
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         time.elapse(const Duration(seconds: 0));
         client.dispose();
@@ -162,14 +162,14 @@ void main() {
         await client.fetch<String>(
           "cache",
           (_) => getData(true),
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         time.elapse(const Duration(seconds: 0));
         expect(client.getData<RemoterData<String>>("cache")?.data, null);
         await client.fetch<String>(
           "cache",
           (_) => getData(false),
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         expect(client.getData<RemoterData<String>>("cache")?.data, "result");
       });
@@ -187,7 +187,7 @@ void main() {
         await client.fetchPaginated<String>(
           "cache",
           (_) => getData(true),
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         time.elapse(const Duration(seconds: 0));
         expect(
@@ -195,7 +195,7 @@ void main() {
         await client.fetchPaginated<String>(
           "cache",
           (_) => getData(false),
-          RemoterClientOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+          RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
         );
         expect(client.getData<PaginatedRemoterData<String>>("cache")?.data,
             ["result"]);
