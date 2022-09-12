@@ -1,5 +1,38 @@
 import 'dart:async';
 
+import 'package:flutter_remoter/internals/types.dart';
+
+RemoterClientOptions flattenOptions(
+  RemoterClientOptions topLevelOptions,
+  RemoterClientOptions? options,
+) {
+  if (options == null) {
+    return topLevelOptions;
+  }
+  final staleTime = options.staleTime.isDefault == false
+      ? options.staleTime.value
+      : topLevelOptions.staleTime.value;
+  final cacheTime = options.cacheTime.isDefault == false
+      ? options.cacheTime.value
+      : topLevelOptions.cacheTime.value;
+  final maxDelay = options.maxDelay.isDefault == false
+      ? options.maxDelay.value
+      : topLevelOptions.maxDelay.value;
+  final maxRetries = options.maxRetries.isDefault == false
+      ? options.maxRetries.value
+      : topLevelOptions.maxRetries.value;
+  final retryOnMount = options.retryOnMount.isDefault == false
+      ? options.retryOnMount.value
+      : topLevelOptions.retryOnMount.value;
+  return RemoterClientOptions(
+    staleTime: staleTime,
+    cacheTime: cacheTime,
+    maxDelay: maxDelay,
+    maxRetries: maxRetries,
+    retryOnMount: retryOnMount,
+  );
+}
+
 /// Stream transformer that starts with [startValue]
 class CustomSink<S> {
   final S? startValue;

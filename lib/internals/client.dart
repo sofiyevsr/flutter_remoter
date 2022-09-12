@@ -4,7 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter_remoter/internals/retry.dart';
 import 'types.dart';
 import 'cache.dart';
-import 'stream_utils.dart';
+import 'utils.dart';
 
 /// Function type for query's execute function
 typedef ExecuteFunction<T> = FutureOr<T> Function(RemoterParam? pageParam);
@@ -45,7 +45,8 @@ class RemoterClient {
   /// Returns new [Stream] which gets cache entry if exists as first data
   /// [T] expects [RemoterData] or [PaginatedRemoterData] type
   Stream<T> getStream<T extends BaseRemoterData, S>(String key,
-      [int? cacheTime]) {
+      [RemoterClientOptions? options]) {
+    final flatOptions = flattenOptions(this.options, options);
     T? cachedValue = getData<T>(key);
     if (cachedValue == null || cachedValue.status != RemoterStatus.success) {
       cachedValue = null;
@@ -59,7 +60,7 @@ class RemoterClient {
         .transform(
           CustomStreamTransformer(
             onClose: () {
-              decreaseListenersCount(key, cacheTime);
+              decreaseListenersCount(key, flatOptions.cacheTime.value);
             },
             onListen: () {
               increaseListenersCount(key);
@@ -75,18 +76,9 @@ class RemoterClient {
   /// Can also be used as refetch function
   /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> fetch<T>(
-    String key,
-    ExecuteFunction fn, {
-    int? staleTime,
-    int? maxDelay,
-    int? maxRetries,
-    bool? retryOnMount,
-  }) async {
-    staleTime = staleTime ?? options.staleTime;
-    maxDelay = maxDelay ?? options.maxDelay;
-    maxRetries = maxRetries ?? options.maxRetries;
-    retryOnMount = retryOnMount ?? options.retryOnMount;
+  Future<void> fetch<T>(String key, ExecuteFunction fn,
+      [RemoterClientOptions? options]) async {
+    final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<RemoterData<T>>(key);
     functions[key] = fn;
 
@@ -98,7 +90,8 @@ class RemoterClient {
     }
 
     // Retry query if it has error status
-    if (initialData?.status == RemoterStatus.error && retryOnMount == true) {
+    if (initialData?.status == RemoterStatus.error &&
+        flatOptions.retryOnMount.value == true) {
       _dispatch(
         key,
         initialData!.copyWith(
@@ -111,7 +104,7 @@ class RemoterClient {
     // If cache for [key] is there and is not stale return cache
     // If cache is stale, trigger background refetch
     if (initialData?.status == RemoterStatus.success) {
-      if (isQueryStale(key, staleTime)) {
+      if (isQueryStale(key, flatOptions.staleTime.value)) {
         _dispatch(
           key,
           initialData!.copyWith(
@@ -122,7 +115,8 @@ class RemoterClient {
         return _dispatch(key, initialData);
       }
     }
-    _fetchQuery<T>(key, maxDelay, maxRetries);
+    _fetchQuery<T>(
+        key, flatOptions.maxDelay.value, flatOptions.maxRetries.value);
   }
 
   /// Executes given function and stores result in cache as entry with [key]
@@ -130,18 +124,9 @@ class RemoterClient {
   /// Can also be used as refetch function
   /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> fetchPaginated<T>(
-    String key,
-    ExecuteFunction fn, {
-    int? staleTime,
-    int? maxDelay,
-    int? maxRetries,
-    bool? retryOnMount,
-  }) async {
-    staleTime = staleTime ?? options.staleTime;
-    maxDelay = maxDelay ?? options.maxDelay;
-    maxRetries = maxRetries ?? options.maxRetries;
-    retryOnMount = retryOnMount ?? options.retryOnMount;
+  Future<void> fetchPaginated<T>(String key, ExecuteFunction fn,
+      [RemoterClientOptions? options]) async {
+    final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<PaginatedRemoterData<T>>(key);
     functions[key] = fn;
 
@@ -153,7 +138,8 @@ class RemoterClient {
     }
 
     // Retry query if it has error status
-    if (initialData?.status == RemoterStatus.error && retryOnMount == true) {
+    if (initialData?.status == RemoterStatus.error &&
+        flatOptions.retryOnMount.value == true) {
       _dispatch(
         key,
         initialData!.copyWith(
@@ -166,7 +152,7 @@ class RemoterClient {
     // If cache for [key] is there and is not stale return cache
     // If cache is stale, trigger background refetch
     if (initialData?.status == RemoterStatus.success) {
-      if (isQueryStale(key, staleTime)) {
+      if (isQueryStale(key, flatOptions.staleTime.value)) {
         _dispatch(
           key,
           initialData!.copyWith(isRefetching: Nullable(true)),
@@ -175,16 +161,16 @@ class RemoterClient {
         return _dispatch(key, initialData);
       }
     }
-    _fetchPaginatedQuery<T>(key, maxDelay, maxRetries);
+    _fetchPaginatedQuery<T>(
+        key, flatOptions.maxDelay.value, flatOptions.maxRetries.value);
   }
 
   /// Fetches next page of data with [key]
   /// if [PaginatedRemoterData.hasNextPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchNextPage<T>(String key,
-      [int? maxDelay, int? maxRetries]) async {
-    maxDelay = maxDelay ?? options.maxDelay;
-    maxRetries = maxRetries ?? options.maxRetries;
+      [RemoterClientOptions? options]) async {
+    final flatOptions = flattenOptions(this.options, options);
     var initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
@@ -216,8 +202,8 @@ class RemoterClient {
           );
           return false;
         },
-        maxDelay: maxDelay,
-        maxRetries: maxRetries,
+        maxDelay: flatOptions.maxDelay.value,
+        maxRetries: flatOptions.maxRetries.value,
       );
 
       // Update data after function runs
@@ -263,9 +249,8 @@ class RemoterClient {
   /// if [PaginatedRemoterData.hasPreviousPage] of current data is true
   /// [T] expects any data type
   Future<void> fetchPreviousPage<T>(String key,
-      [int? maxDelay, int? maxRetries]) async {
-    maxDelay = maxDelay ?? options.maxDelay;
-    maxRetries = maxRetries ?? options.maxRetries;
+      [RemoterClientOptions? options]) async {
+    final flatOptions = flattenOptions(this.options, options);
     var initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
     final pageFunctions =
@@ -298,8 +283,8 @@ class RemoterClient {
           );
           return false;
         },
-        maxDelay: maxDelay,
-        maxRetries: maxRetries,
+        maxDelay: flatOptions.maxDelay.value,
+        maxRetries: flatOptions.maxRetries.value,
       );
       // Update data after function runs
       initialData = getData<PaginatedRemoterData<T>>(key);
@@ -344,9 +329,8 @@ class RemoterClient {
   /// Ignores staleTime
   /// [T] expects any data type
   Future<void> invalidateQuery<T>(String key,
-      [int? maxDelay, int? maxRetries]) async {
-    maxDelay = maxDelay ?? options.maxDelay;
-    maxRetries = maxRetries ?? options.maxRetries;
+      [RemoterClientOptions? options]) async {
+    final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];
     if (fn == null || listeners[key] == null || listeners[key]! < 1) return;
@@ -355,23 +339,31 @@ class RemoterClient {
         key,
         (initialData as RemoterData).copyWith(isRefetching: Nullable(true)),
       );
-      _fetchQuery<T>(key, maxDelay, maxRetries);
+      _fetchQuery<T>(
+        key,
+        flatOptions.maxDelay.value,
+        flatOptions.maxRetries.value,
+      );
     } else if (initialData is PaginatedRemoterData) {
       _dispatch(
         key,
-        (initialData as PaginatedRemoterData)
-            .copyWith(isRefetching: Nullable(true)),
+        (initialData as PaginatedRemoterData).copyWith(
+          isRefetching: Nullable(true),
+        ),
       );
-      _fetchPaginatedQuery<T>(key, maxDelay, maxRetries);
+      _fetchPaginatedQuery<T>(
+        key,
+        flatOptions.maxDelay.value,
+        flatOptions.maxRetries.value,
+      );
     }
   }
 
   /// Retries failed query
   /// Query should have status of [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> retry<T>(String key, [int? maxDelay, int? maxRetries]) async {
-    maxDelay = maxDelay ?? options.maxDelay;
-    maxRetries = maxRetries ?? options.maxRetries;
+  Future<void> retry<T>(String key, [RemoterClientOptions? options]) async {
+    final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];
     if (fn == null || initialData?.status != RemoterStatus.error) return;
@@ -384,7 +376,11 @@ class RemoterClient {
           status: RemoterStatus.fetching,
         ),
       );
-      _fetchQuery<T>(key, maxDelay, maxRetries);
+      _fetchQuery<T>(
+        key,
+        flatOptions.maxDelay.value,
+        flatOptions.maxRetries.value,
+      );
     } else {
       _dispatch(
         key,
@@ -395,7 +391,11 @@ class RemoterClient {
           status: RemoterStatus.fetching,
         ),
       );
-      _fetchPaginatedQuery<T>(key, maxDelay, maxRetries);
+      _fetchPaginatedQuery<T>(
+        key,
+        flatOptions.maxDelay.value,
+        flatOptions.maxRetries.value,
+      );
     }
   }
 
@@ -438,11 +438,11 @@ class RemoterClient {
   /// Decrease listeners count for [key]
   /// If there is no listener
   /// Start timer to delete cache after [cacheTime]
-  void decreaseListenersCount(String key, [int? cacheTime]) {
+  void decreaseListenersCount(String key, int cacheTime) {
     if (listeners[key] == null) return;
     if (listeners[key] == 1) {
       listeners.remove(key);
-      _cache.startTimer(key, cacheTime ?? options.cacheTime);
+      _cache.startTimer(key, cacheTime);
     } else {
       listeners[key] = listeners[key]! - 1;
     }

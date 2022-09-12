@@ -82,20 +82,15 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
       refetch: () => remoter.client.fetch<T>(
         widget.remoterKey,
         (_) => widget.execute(),
-        staleTime: widget.options?.staleTime,
-        maxDelay: widget.options?.maxDelay,
-        maxRetries: widget.options?.maxRetries,
-        retryOnMount: widget.options?.retryOnMount,
+        widget.options,
       ),
       invalidateQuery: () => remoter.client.invalidateQuery<T>(
         widget.remoterKey,
-        widget.options?.maxDelay,
-        widget.options?.maxRetries,
+        widget.options,
       ),
       retry: () => remoter.client.retry<T>(
         widget.remoterKey,
-        widget.options?.maxDelay,
-        widget.options?.maxRetries,
+        widget.options,
       ),
       setData: (data) =>
           remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
@@ -115,14 +110,13 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
     provider.client.fetch<T>(
       widget.remoterKey,
       (_) => widget.execute(),
-      staleTime: widget.options?.staleTime,
-      maxDelay: widget.options?.maxDelay,
-      maxRetries: widget.options?.maxRetries,
-      retryOnMount: widget.options?.retryOnMount,
+      widget.options,
     );
     subscription = provider.client
         .getStream<RemoterData<T>, T>(
-            widget.remoterKey, widget.options?.cacheTime)
+      widget.remoterKey,
+      widget.options,
+    )
         .listen(
       (event) {
         widget.listener?.call(data, event);

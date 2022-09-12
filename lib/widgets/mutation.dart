@@ -57,8 +57,8 @@ class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
         );
         final result = await retryFuture(
           () => widget.execute(param),
-          maxDelay: widget.maxDelay ?? topLevelOptions.maxDelay,
-          maxRetries: widget.maxRetries ?? topLevelOptions.maxRetries,
+          maxDelay: widget.maxDelay ?? topLevelOptions.maxDelay.value,
+          maxRetries: widget.maxRetries ?? topLevelOptions.maxRetries.value,
         );
         _dispatch(
           RemoterMutationData<T>(

@@ -19,26 +19,40 @@ import 'package:flutter_remoter/flutter_remoter.dart';
 /// ```
 class RemoterClientOptions {
   /// Defines after how many ms after query data is considered as stale
-  final int staleTime;
+  final Default<int> staleTime;
 
   /// Defines after how many ms after all listeners unmounted cache should be cleared
-  final int cacheTime;
+  final Default<int> cacheTime;
 
   /// Maximum delay between retries in ms
-  final int maxDelay;
+  final Default<int> maxDelay;
 
   /// Maximum amount of retries
-  final int maxRetries;
+  final Default<int> maxRetries;
 
   /// Flag that decides if query that has error status should be refetched on mount
-  final bool retryOnMount;
+  final Default<bool> retryOnMount;
   RemoterClientOptions({
-    this.staleTime = 0,
-    this.cacheTime = 5 * 1000 * 60,
-    this.maxDelay = 5 * 1000 * 60,
-    this.maxRetries = 3,
-    this.retryOnMount = true,
-  });
+    int? staleTime,
+    int? cacheTime,
+    int? maxDelay,
+    int? maxRetries,
+    bool? retryOnMount,
+  })  : staleTime = staleTime != null
+            ? Default(staleTime, isDefault: false)
+            : Default(0),
+        cacheTime = cacheTime != null
+            ? Default(cacheTime, isDefault: false)
+            : Default(5 * 1000 * 60),
+        maxDelay = maxDelay != null
+            ? Default(maxDelay, isDefault: false)
+            : Default(5 * 1000 * 60),
+        maxRetries = maxRetries != null
+            ? Default(maxRetries, isDefault: false)
+            : Default(3),
+        retryOnMount = retryOnMount != null
+            ? Default(retryOnMount, isDefault: false)
+            : Default(true);
 }
 
 /// Represents status for query
@@ -287,4 +301,11 @@ class PaginatedQueryFunctions<T> {
 class Nullable<T> {
   final T? value;
   Nullable(this.value);
+}
+
+/// Used to distinguish default parameters and user defined parameters
+class Default<T> {
+  final T value;
+  final bool isDefault;
+  Default(this.value, {this.isDefault = true});
 }
