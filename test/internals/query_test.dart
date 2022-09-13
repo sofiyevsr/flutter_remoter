@@ -48,7 +48,7 @@ void main() {
         return "stale";
       });
       // Required to be able to invalidate
-      client.getStream("cache");
+      client.getStream("cache").listen((event) {});
       expect(client.getData("cache")?.data, "stale");
       await client.invalidateQuery("cache");
       expect(client.getData("cache")?.data, "new");

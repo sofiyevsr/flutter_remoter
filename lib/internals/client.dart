@@ -48,8 +48,7 @@ class RemoterClient {
     if (cachedValue == null || cachedValue.status != RemoterStatus.success) {
       cachedValue = null;
     }
-    // Create new stream
-    // that emits latest value from cache first
+    // Create new stream to track listener count
     final stream = _cacheStream.stream
         .cast<T>()
         .where((event) => event.key == key)
@@ -61,7 +60,6 @@ class RemoterClient {
             onListen: () {
               increaseListenersCount(key);
             },
-            sink: CustomSink<T>(cachedValue),
           ),
         );
     return stream;
