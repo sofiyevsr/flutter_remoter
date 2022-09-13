@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
-import 'package:flutter_remoter/flutter_remoter.dart';
 
 /// Defines options for [RemoterClient], [RemoterQuery] and [PaginatedRemoterQuery]
 ///
@@ -305,7 +306,67 @@ class Nullable<T> {
 
 /// Used to distinguish default parameters and user defined parameters
 class Default<T> {
+  /// Stores value of data
   final T value;
+
+  /// If user omits given field and default value is given by constructer
   final bool isDefault;
   Default(this.value, {this.isDefault = true});
+}
+
+/// Represents class of helper methods which is passed to builder function for [RemoterQuery]
+/// These function doesn't add any functionality to [RemoterClient] methods
+class RemoterQueryUtils<T> {
+  final FutureOr Function() invalidateQuery;
+  final FutureOr Function() retry;
+  final FutureOr Function() refetch;
+  final FutureOr Function(T data) setData;
+  RemoterQueryUtils({
+    required this.invalidateQuery,
+    required this.retry,
+    required this.setData,
+    required this.refetch,
+  });
+}
+
+/// Represents class of helper methods which is passed to builder function for [PaginatedRemoterQuery]
+/// These function doesn't add any functionality to [RemoterClient] methods
+class RemoterPaginatedUtils<T> extends RemoterQueryUtils<T> {
+  final FutureOr Function() fetchNextPage;
+  final FutureOr Function() fetchPreviousPage;
+  RemoterPaginatedUtils({
+    required this.fetchNextPage,
+    required this.fetchPreviousPage,
+    required super.invalidateQuery,
+    required super.retry,
+    required super.setData,
+    required super.refetch,
+  });
+}
+
+/// Represents class for helper methods which is passed to builder function for [RemoterMutation]
+class RemoterMutationUtils<S> {
+  final FutureOr Function() reset;
+  final FutureOr Function(S param) mutate;
+  RemoterMutationUtils({
+    required this.mutate,
+    required this.reset,
+  });
+}
+
+/// Represents class for mutation object
+class RemoterMutationData<T> {
+  /// Represents error object if status is [RemoterStatus.error]
+  Object? error;
+
+  /// Represents data given function returns on [RemoterStatus.success]
+  T? data;
+
+  /// Represents state of data, default [RemoterStatus.idle]
+  RemoterStatus status;
+  RemoterMutationData({
+    required this.data,
+    this.status = RemoterStatus.idle,
+    this.error,
+  });
 }

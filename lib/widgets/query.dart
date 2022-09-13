@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/internals/types.dart';
 import 'package:flutter_remoter/widgets/provider.dart';
-import 'package:flutter_remoter/widgets/types.dart';
 
 /// Used for fetching remote data, revalidating it and etc.
 /// If [T] generic is used, all [RemoterClient] method calls should be called with [T],

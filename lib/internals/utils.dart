@@ -1,6 +1,5 @@
 import 'dart:async';
-
-import 'package:flutter_remoter/internals/types.dart';
+import 'types.dart';
 
 RemoterOptions flattenOptions(
   RemoterOptions topLevelOptions,

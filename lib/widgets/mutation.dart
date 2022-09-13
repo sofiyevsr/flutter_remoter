@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/internals/retry.dart';
 import 'package:flutter_remoter/internals/types.dart';
 import 'package:flutter_remoter/widgets/provider.dart';
-import 'package:flutter_remoter/widgets/types.dart';
 
 class RemoterMutation<T, S> extends StatefulWidget {
   /// Function to fetch data

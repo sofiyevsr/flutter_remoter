@@ -1,13 +1,10 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
-import 'package:flutter_remoter/internals/retry.dart';
+import 'retry.dart';
 import 'types.dart';
 import 'cache.dart';
 import 'utils.dart';
-
-/// Function type for query's execute function
-typedef ExecuteFunction<T> = FutureOr<T> Function(RemoterParam? pageParam);
 
 /// Client that processes query actions and holds cache data
 /// [options] holds global options which is used on each query
@@ -27,7 +24,7 @@ class RemoterClient {
   final Map<String, int> listeners = {};
 
   /// Storage for functions for each key to be used in retry and refetch
-  final Map<String, ExecuteFunction> functions = {};
+  final Map<String, FutureOr Function(RemoterParam? pageParam)> functions = {};
 
   /// Function defining parameters to get data for new pages
   final Map<String, PaginatedQueryFunctions> paginatedQueryFunctions = {};
@@ -51,7 +48,6 @@ class RemoterClient {
     if (cachedValue == null || cachedValue.status != RemoterStatus.success) {
       cachedValue = null;
     }
-
     // Create new stream
     // that emits latest value from cache first
     final stream = _cacheStream.stream
@@ -76,7 +72,8 @@ class RemoterClient {
   /// Can also be used as refetch function
   /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> fetch<T>(String key, ExecuteFunction fn,
+  Future<void> fetch<T>(
+      String key, FutureOr<T> Function(RemoterParam? pageParam) fn,
       [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<RemoterData<T>>(key);
@@ -124,7 +121,8 @@ class RemoterClient {
   /// Can also be used as refetch function
   /// Retries query if its status is [RemoterStatus.error]
   /// [T] expects any data type
-  Future<void> fetchPaginated<T>(String key, ExecuteFunction fn,
+  Future<void> fetchPaginated<T>(
+      String key, FutureOr<T> Function(RemoterParam? pageParam) fn,
       [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<PaginatedRemoterData<T>>(key);
@@ -168,8 +166,7 @@ class RemoterClient {
   /// Fetches next page of data with [key]
   /// if [PaginatedRemoterData.hasNextPage] of current data is true
   /// [T] expects any data type
-  Future<void> fetchNextPage<T>(String key,
-      [RemoterOptions? options]) async {
+  Future<void> fetchNextPage<T>(String key, [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     var initialData = getData<PaginatedRemoterData<T>>(key);
     final fn = functions[key];
@@ -328,8 +325,7 @@ class RemoterClient {
   /// Triggers a background fetch for given [key] if there is at least 1 listener
   /// Ignores staleTime
   /// [T] expects any data type
-  Future<void> invalidateQuery<T>(String key,
-      [RemoterOptions? options]) async {
+  Future<void> invalidateQuery<T>(String key, [RemoterOptions? options]) async {
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<BaseRemoterData<T>>(key);
     final fn = functions[key];
