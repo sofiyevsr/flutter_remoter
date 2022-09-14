@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/internals/types.dart';
 import 'package:flutter_remoter/widgets/provider.dart';
-import 'package:flutter_remoter/widgets/types.dart';
 
 /// Used for fetching remote data, revalidating it and etc.
 /// If [T] generic is used, all [RemoterClient] method calls should be called with [T],
@@ -52,7 +51,7 @@ class RemoterQuery<T> extends StatefulWidget {
 
   /// Options that will be applied to only this query
   /// Omitted values in options will still fallback to top level options
-  final RemoterClientOptions? options;
+  final RemoterOptions? options;
 
   /// Query won't start executing if [disabled] is true
   final bool? disabled;
@@ -82,20 +81,15 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
       refetch: () => remoter.client.fetch<T>(
         widget.remoterKey,
         (_) => widget.execute(),
-        staleTime: widget.options?.staleTime,
-        maxDelay: widget.options?.maxDelay,
-        maxRetries: widget.options?.maxRetries,
-        retryOnMount: widget.options?.retryOnMount,
+        widget.options,
       ),
       invalidateQuery: () => remoter.client.invalidateQuery<T>(
         widget.remoterKey,
-        widget.options?.maxDelay,
-        widget.options?.maxRetries,
+        widget.options,
       ),
       retry: () => remoter.client.retry<T>(
         widget.remoterKey,
-        widget.options?.maxDelay,
-        widget.options?.maxRetries,
+        widget.options,
       ),
       setData: (data) =>
           remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
@@ -115,14 +109,13 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
     provider.client.fetch<T>(
       widget.remoterKey,
       (_) => widget.execute(),
-      staleTime: widget.options?.staleTime,
-      maxDelay: widget.options?.maxDelay,
-      maxRetries: widget.options?.maxRetries,
-      retryOnMount: widget.options?.retryOnMount,
+      widget.options,
     );
     subscription = provider.client
         .getStream<RemoterData<T>, T>(
-            widget.remoterKey, widget.options?.cacheTime)
+      widget.remoterKey,
+      widget.options,
+    )
         .listen(
       (event) {
         widget.listener?.call(data, event);

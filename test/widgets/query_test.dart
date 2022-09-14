@@ -51,7 +51,7 @@ void main() {
 
   testWidgets("refetches when new listener mounted", (tester) async {
     final client = RemoterClient(
-      options: RemoterClientOptions(staleTime: 0),
+      options: RemoterOptions(staleTime: 0),
     );
     await client.fetch<String>("cache", (_) async => "result");
     await tester.pumpWidget(App(

@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
-import 'package:flutter_remoter/flutter_remoter.dart';
 
 /// Defines options for [RemoterClient], [RemoterQuery] and [PaginatedRemoterQuery]
 ///
 /// ```dart
-/// RemoterClientOptions(
+/// RemoterOptions(
 ///       // staleTime defines how many ms after query fetched can be refetched
 ///       staleTime: 0,
 ///       // cacheTime defines how many ms after all listeners are gone query data should be cleared,
@@ -17,28 +18,42 @@ import 'package:flutter_remoter/flutter_remoter.dart';
 ///       retryOnMount: true,
 /// )
 /// ```
-class RemoterClientOptions {
+class RemoterOptions {
   /// Defines after how many ms after query data is considered as stale
-  final int staleTime;
+  final Default<int> staleTime;
 
   /// Defines after how many ms after all listeners unmounted cache should be cleared
-  final int cacheTime;
+  final Default<int> cacheTime;
 
   /// Maximum delay between retries in ms
-  final int maxDelay;
+  final Default<int> maxDelay;
 
   /// Maximum amount of retries
-  final int maxRetries;
+  final Default<int> maxRetries;
 
   /// Flag that decides if query that has error status should be refetched on mount
-  final bool retryOnMount;
-  RemoterClientOptions({
-    this.staleTime = 0,
-    this.cacheTime = 5 * 1000 * 60,
-    this.maxDelay = 5 * 1000 * 60,
-    this.maxRetries = 3,
-    this.retryOnMount = true,
-  });
+  final Default<bool> retryOnMount;
+  RemoterOptions({
+    int? staleTime,
+    int? cacheTime,
+    int? maxDelay,
+    int? maxRetries,
+    bool? retryOnMount,
+  })  : staleTime = staleTime != null
+            ? Default(staleTime, isDefault: false)
+            : Default(0),
+        cacheTime = cacheTime != null
+            ? Default(cacheTime, isDefault: false)
+            : Default(5 * 1000 * 60),
+        maxDelay = maxDelay != null
+            ? Default(maxDelay, isDefault: false)
+            : Default(5 * 1000 * 60),
+        maxRetries = maxRetries != null
+            ? Default(maxRetries, isDefault: false)
+            : Default(3),
+        retryOnMount = retryOnMount != null
+            ? Default(retryOnMount, isDefault: false)
+            : Default(true);
 }
 
 /// Represents status for query
@@ -287,4 +302,71 @@ class PaginatedQueryFunctions<T> {
 class Nullable<T> {
   final T? value;
   Nullable(this.value);
+}
+
+/// Used to distinguish default parameters and user defined parameters
+class Default<T> {
+  /// Stores value of data
+  final T value;
+
+  /// If user omits given field and default value is given by constructer
+  final bool isDefault;
+  Default(this.value, {this.isDefault = true});
+}
+
+/// Represents class of helper methods which is passed to builder function for [RemoterQuery]
+/// These function doesn't add any functionality to [RemoterClient] methods
+class RemoterQueryUtils<T> {
+  final FutureOr Function() invalidateQuery;
+  final FutureOr Function() retry;
+  final FutureOr Function() refetch;
+  final FutureOr Function(T data) setData;
+  RemoterQueryUtils({
+    required this.invalidateQuery,
+    required this.retry,
+    required this.setData,
+    required this.refetch,
+  });
+}
+
+/// Represents class of helper methods which is passed to builder function for [PaginatedRemoterQuery]
+/// These function doesn't add any functionality to [RemoterClient] methods
+class RemoterPaginatedUtils<T> extends RemoterQueryUtils<T> {
+  final FutureOr Function() fetchNextPage;
+  final FutureOr Function() fetchPreviousPage;
+  RemoterPaginatedUtils({
+    required this.fetchNextPage,
+    required this.fetchPreviousPage,
+    required super.invalidateQuery,
+    required super.retry,
+    required super.setData,
+    required super.refetch,
+  });
+}
+
+/// Represents class for helper methods which is passed to builder function for [RemoterMutation]
+class RemoterMutationUtils<S> {
+  final FutureOr Function() reset;
+  final FutureOr Function(S param) mutate;
+  RemoterMutationUtils({
+    required this.mutate,
+    required this.reset,
+  });
+}
+
+/// Represents class for mutation object
+class RemoterMutationData<T> {
+  /// Represents error object if status is [RemoterStatus.error]
+  Object? error;
+
+  /// Represents data given function returns on [RemoterStatus.success]
+  T? data;
+
+  /// Represents state of data, default [RemoterStatus.idle]
+  RemoterStatus status;
+  RemoterMutationData({
+    required this.data,
+    this.status = RemoterStatus.idle,
+    this.error,
+  });
 }

@@ -22,7 +22,7 @@ void main() {
 
     test("retry works on query error status", () async {
       final client = RemoterClient(
-        options: RemoterClientOptions(maxRetries: 0),
+        options: RemoterOptions(maxRetries: 0),
       );
       bool passError = false;
       await client.fetch<String>("cache", (_) {
@@ -48,7 +48,7 @@ void main() {
         return "stale";
       });
       // Required to be able to invalidate
-      client.getStream("cache");
+      client.getStream("cache").listen((event) {});
       expect(client.getData("cache")?.data, "stale");
       await client.invalidateQuery("cache");
       expect(client.getData("cache")?.data, "new");
@@ -80,7 +80,7 @@ void main() {
     });
     test("if no listener is there cache should be removed for key", () async {
       final client = RemoterClient(
-        options: RemoterClientOptions(cacheTime: 5000),
+        options: RemoterOptions(cacheTime: 5000),
       );
       runFakeAsync((async) async {
         // increase listener counts
@@ -97,7 +97,7 @@ void main() {
       "if new listener is created after timer started, cache shouldn't be cleared",
       () async {
         final client = RemoterClient(
-          options: RemoterClientOptions(cacheTime: 5000),
+          options: RemoterOptions(cacheTime: 5000),
         );
         runFakeAsync((async) async {
           // increase listener counts

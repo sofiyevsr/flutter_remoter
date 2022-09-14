@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return RemoterProvider(
       client: RemoterClient(
-        options: RemoterClientOptions(
+        options: RemoterOptions(
             // Infinite staleTime means it won't be refetched on startup
             // 1 << 31 is max int32
             // staleTime: 1 << 31,
