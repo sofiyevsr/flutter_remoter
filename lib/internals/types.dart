@@ -95,15 +95,30 @@ abstract class BaseRemoterData<T> {
   /// Represents error object if status is [RemoterStatus.error]
   /// also can be non-null if next or previous page fetch fails
   Object? error;
+
+  /// Represents how many times execute function failed while fetching this query, default 0
+  final int failCount;
   BaseRemoterData({
     required this.key,
     this.error,
     bool? isRefetching,
     RemoterStatus? status,
     DateTime? updatedAt,
+    int? failCount,
   })  : updatedAt = updatedAt ?? clock.now(),
         isRefetching = isRefetching ?? false,
-        status = status ?? RemoterStatus.idle;
+        status = status ?? RemoterStatus.idle,
+        failCount = failCount ?? 0;
+
+  BaseRemoterData copyWith({
+    String? key,
+    Nullable<Object>? error,
+    Nullable<DateTime>? updatedAt,
+    Nullable<RemoterStatus>? status,
+    Nullable<bool>? isRefetching,
+    Nullable<int>? failCount,
+  });
+
   @override
   String toString() {
     return "BaseRemoteData -> key: $key, status: $status, error: $error, updatedAt: $updatedAt";
@@ -116,8 +131,6 @@ class RemoterData<T> extends BaseRemoterData<T> {
   /// Represents data execute function returns on [RemoterStatus.success]
   final T? data;
 
-  /// Represents how many times execute function failed while fetching this query, default 0
-  final int failCount;
   RemoterData({
     required super.key,
     required this.data,
@@ -125,8 +138,9 @@ class RemoterData<T> extends BaseRemoterData<T> {
     super.error,
     super.status,
     super.isRefetching,
-    int? failCount,
-  }) : failCount = failCount ?? 0;
+    super.failCount,
+  });
+  @override
   RemoterData<T> copyWith({
     String? key,
     Nullable<T>? data,
@@ -157,9 +171,6 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
   /// Represents data in list of pages
   /// execute function returns based on [pageParams] on [RemoterStatus.success]
   final List<T>? data;
-
-  /// Represents how many times execute function failed while fetching this query, default 0
-  final int failCount;
 
   /// Represents how many times execute function failed while fetching previous page, default 0
   final int prevPageFailCount;
@@ -194,7 +205,7 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     super.error,
     super.status,
     super.isRefetching,
-    int? failCount,
+    super.failCount,
     int? prevPageFailCount,
     int? nextPageFailCount,
     bool? isFetchingPreviousPage,
@@ -209,9 +220,9 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
         isNextPageError = isNextPageError ?? false,
         hasPreviousPage = hasPreviousPage ?? false,
         hasNextPage = hasNextPage ?? false,
-        failCount = failCount ?? 0,
         prevPageFailCount = prevPageFailCount ?? 0,
         nextPageFailCount = nextPageFailCount ?? 0;
+  @override
   PaginatedRemoterData<T> copyWith({
     String? key,
     Nullable<List<T>>? data,
@@ -270,18 +281,6 @@ class PaginatedRemoterData<T> extends BaseRemoterData<T> {
     final clone = [...this.data!];
     clone[index] = data;
     return clone;
-  }
-}
-
-/// Represents object that is pushed when cache is mutated
-class CacheEvent<T> {
-  String key;
-  T data;
-  CacheEvent({required this.data, required this.key});
-
-  @override
-  String toString() {
-    return "Cache Event -> key: $key, data: $data";
   }
 }
 

@@ -25,7 +25,7 @@ void main() {
         options: RemoterOptions(maxRetries: 0),
       );
       bool passError = false;
-      await client.fetch<String>("cache", (_) {
+      await client.fetch<RemoterData<String>, String>("cache", execute: (_) {
         if (passError == true) {
           return "test";
         }
@@ -40,7 +40,7 @@ void main() {
     test("invalidate query works", () async {
       final client = RemoterClient();
       bool pass = false;
-      await client.fetch<String>("cache", (_) {
+      await client.fetch<RemoterData<String>, String>("cache", execute: (_) {
         if (pass == true) {
           return "new";
         }
@@ -57,7 +57,7 @@ void main() {
     test("is stale works", () async {
       final client = RemoterClient();
       runFakeAsync((async) async {
-        await client.fetch<String>("cache", (_) => "test");
+        await client.fetch<RemoterData<String>, String>("cache", execute: (_) => "test");
         expect(client.isQueryStale("cache", 1000), false);
         async.elapse(const Duration(milliseconds: 1000));
         expect(client.isQueryStale("cache", 1000), true);
@@ -68,15 +68,15 @@ void main() {
   group("actions on listeners count", () {
     test("count is updated", () {
       final client = RemoterClient();
-      expect(client.listeners["cache"], isNull);
+      expect(client.getListenersCount("cache"), isNull);
       final f = client.getStream("cache").listen((event) {});
-      expect(client.listeners["cache"], 1);
+      expect(client.getListenersCount("cache"), 1);
       final s = client.getStream("cache").listen((event) {});
-      expect(client.listeners["cache"], 2);
+      expect(client.getListenersCount("cache"), 2);
       f.cancel();
-      expect(client.listeners["cache"], 1);
+      expect(client.getListenersCount("cache"), 1);
       s.cancel();
-      expect(client.listeners["cache"], isNull);
+      expect(client.getListenersCount("cache"), isNull);
     });
     test("if no listener is there cache should be removed for key", () async {
       final client = RemoterClient(
@@ -85,7 +85,8 @@ void main() {
       runFakeAsync((async) async {
         // increase listener counts
         final f = client.getStream("cache").listen((event) {});
-        await client.fetch<String>("cache", (_) => "result");
+        await client.fetch<RemoterData<String>, String>(
+            "cache", execute: (_) => "result");
         expect(client.getData<RemoterData<String>>("cache")?.data, "result");
         // decrease listener count to start timer
         f.cancel();
@@ -102,7 +103,8 @@ void main() {
         runFakeAsync((async) async {
           // increase listener counts
           final f = client.getStream("cache").listen((event) {});
-          await client.fetch<String>("cache", (_) => "result");
+          await client.fetch<RemoterData<String>, String>(
+              "cache", execute: (_) => "result");
           expect(client.getData<RemoterData<String>>("cache")?.data, "result");
           // decrease listener count to start timer
           f.cancel();

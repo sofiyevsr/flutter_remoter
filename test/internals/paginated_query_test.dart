@@ -22,7 +22,8 @@ void main() {
   test("invalidate query works", () async {
     final client = RemoterClient();
     bool pass = false;
-    await client.fetchPaginated<String>("cache", (_) {
+    await client.fetch<PaginatedRemoterData<String>, String>("cache",
+        execute: (_) {
       if (pass == true) {
         return "new";
       }
@@ -43,7 +44,8 @@ void main() {
       PaginatedQueryFunctions<String>(
           getPreviousPageParam: (pages) => "previous"),
     );
-    await client.fetchPaginated<String>("cache", (param) {
+    await client.fetch<PaginatedRemoterData<String>, String>("cache",
+        execute: (param) {
       return param?.value ?? "default";
     });
     expect(client.getData("cache")?.data, ["default"]);
@@ -57,7 +59,8 @@ void main() {
       "cache",
       PaginatedQueryFunctions<String>(getNextPageParam: (pages) => "next"),
     );
-    await client.fetchPaginated<String>("cache", (param) {
+    await client.fetch<PaginatedRemoterData<String>, String>("cache",
+        execute: (param) {
       return param?.value ?? "default";
     });
     expect(client.getData("cache")?.data, ["default"]);
@@ -73,7 +76,8 @@ void main() {
           getNextPageParam: (pages) => "next",
           getPreviousPageParam: (pages) => "prev"),
     );
-    await client.fetchPaginated<String>("cache", (param) {
+    await client.fetch<PaginatedRemoterData<String>, String>("cache",
+        execute: (param) {
       return param?.value ?? "default";
     });
     await Future.wait([
@@ -94,7 +98,8 @@ void main() {
         return temp;
       }),
     );
-    await client.fetchPaginated<String>("cache", (param) {
+    await client.fetch<PaginatedRemoterData<String>, String>("cache",
+        execute: (param) {
       return "default";
     });
     expect(
@@ -120,7 +125,8 @@ void main() {
         return temp;
       }),
     );
-    await client.fetchPaginated<String>("cache", (param) {
+    await client.fetch<PaginatedRemoterData<String>, String>("cache",
+        execute: (param) {
       return "default";
     });
     expect(

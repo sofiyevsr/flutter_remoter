@@ -35,7 +35,8 @@ class _AppState extends State<App> {
 void main() {
   testWidgets('renders initial data on startup', (tester) async {
     final client = RemoterClient();
-    await client.fetch<String>("cache", (_) async => "result");
+    await client.fetch<RemoterData<String>, String>(
+        "cache", execute: (_) async => "result");
     await tester.pumpWidget(App(
       client: client,
       child: RemoterQuery<String>(
@@ -53,7 +54,8 @@ void main() {
     final client = RemoterClient(
       options: RemoterOptions(staleTime: 0),
     );
-    await client.fetch<String>("cache", (_) async => "result");
+    await client.fetch<RemoterData<String>, String>(
+        "cache", execute: (_) async => "result");
     await tester.pumpWidget(App(
       client: client,
       child: RemoterQuery<String>(

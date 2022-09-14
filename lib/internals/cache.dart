@@ -56,3 +56,15 @@ class RemoterCache {
     return Timer(Duration(milliseconds: duration), onCallback);
   }
 }
+
+/// Represents object that is pushed when cache is mutated
+class CacheEvent<T> {
+  String key;
+  T data;
+  CacheEvent({required this.data, required this.key});
+
+  @override
+  String toString() {
+    return "Cache Event -> key: $key, data: $data";
+  }
+}

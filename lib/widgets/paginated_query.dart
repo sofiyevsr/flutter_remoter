@@ -98,10 +98,9 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
   RemoterPaginatedUtils<PaginatedRemoterData<T>> processUtils() {
     final remoter = RemoterProvider.of(context);
     return RemoterPaginatedUtils<PaginatedRemoterData<T>>(
-      refetch: () => remoter.client.fetchPaginated<T>(
+      refetch: () => remoter.client.fetch<PaginatedRemoterData<T>, T>(
         widget.remoterKey,
-        widget.execute,
-        widget.options,
+        options: widget.options,
       ),
       fetchNextPage: () => remoter.client.fetchNextPage<T>(
         widget.remoterKey,
@@ -142,10 +141,10 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
         getNextPageParam: widget.getNextPageParam,
       ),
     );
-    provider.client.fetchPaginated<T>(
+    provider.client.fetch<PaginatedRemoterData<T>, T>(
       widget.remoterKey,
-      widget.execute,
-      widget.options,
+      execute: widget.execute,
+      options: widget.options,
     );
     subscription = provider.client
         .getStream<PaginatedRemoterData<T>, T>(

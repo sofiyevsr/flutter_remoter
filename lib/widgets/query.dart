@@ -78,10 +78,9 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
   RemoterQueryUtils<RemoterData<T>> processUtils() {
     final remoter = RemoterProvider.of(context);
     return RemoterQueryUtils<RemoterData<T>>(
-      refetch: () => remoter.client.fetch<T>(
+      refetch: () => remoter.client.fetch<RemoterData<T>, T>(
         widget.remoterKey,
-        (_) => widget.execute(),
-        widget.options,
+        options: widget.options,
       ),
       invalidateQuery: () => remoter.client.invalidateQuery<T>(
         widget.remoterKey,
@@ -106,10 +105,10 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
       );
     }
     final provider = RemoterProvider.of(context);
-    provider.client.fetch<T>(
+    provider.client.fetch<RemoterData<T>, T>(
       widget.remoterKey,
-      (_) => widget.execute(),
-      widget.options,
+      execute: (_) => widget.execute(),
+      options: widget.options,
     );
     subscription = provider.client
         .getStream<RemoterData<T>, T>(
