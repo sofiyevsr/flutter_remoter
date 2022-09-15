@@ -35,7 +35,8 @@ class _AppState extends State<App> {
 void main() {
   testWidgets('renders initial data on startup', (tester) async {
     final client = RemoterClient();
-    await client.fetchPaginated<String>("cache", (_) async => "result");
+    await client.fetch<PaginatedRemoterData<String>, String>(
+        "cache", execute: (_) async => "result");
     await tester.pumpWidget(App(
       client: client,
       child: PaginatedRemoterQuery<String>(
