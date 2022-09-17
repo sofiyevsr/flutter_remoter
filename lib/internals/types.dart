@@ -369,5 +369,5 @@ class RemoterMutationData<T> {
     this.error,
   });
   @override
-  String toString() => "RemoterMutationData -> key: $status, data: $data";
+  String toString() => "RemoterMutationData -> status: $status, data: $data";
 }

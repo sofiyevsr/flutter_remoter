@@ -78,7 +78,7 @@ class RemoterClient {
         T != dynamic &&
             (T == (RemoterData<S>) || T == (PaginatedRemoterData<S>)),
         "[T] should be type of either RemoterData<S> or PaginatedRemoterData<S>");
-    assert(execute == null && _functions[key] == null,
+    assert(execute != null || _functions[key] != null,
         "Couldn't find execute function. Provide an execute function or make sure you have called fetch with an execute function before this call");
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<T>(key);

@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return RemoterProvider(
       client: RemoterClient(
-        options: RemoterClientOptions(
+        options: RemoterOptions(
             // staleTime defines how many ms after query fetched can be refetched
             // Use infinite staleTime if you don't need queries to be refetched when new query mounts
             // 1 << 31 is max int32
