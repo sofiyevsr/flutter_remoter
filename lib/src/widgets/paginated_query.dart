@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_remoter/internals/types.dart';
-import 'package:flutter_remoter/widgets/provider.dart';
+import 'package:flutter_remoter/src/internals/types.dart';
+import 'package:flutter_remoter/src/widgets/provider.dart';
 
 /// Used for data that has multiple pages or "infinite scroll" like experience.
 /// If [T] generic is used, all [RemoterClient] method calls should be called with [T],

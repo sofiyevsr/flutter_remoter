@@ -1,4 +1,4 @@
-import 'package:flutter_remoter/internals/retry.dart';
+import 'package:flutter_remoter/src/internals/retry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../utils/run_fake_async.dart';

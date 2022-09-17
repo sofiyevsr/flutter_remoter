@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_remoter/internals/client.dart';
-import 'package:flutter_remoter/widgets/mutation.dart';
-import 'package:flutter_remoter/widgets/provider.dart';
+import 'package:flutter_remoter/src/internals/client.dart';
+import 'package:flutter_remoter/src/widgets/mutation.dart';
+import 'package:flutter_remoter/src/widgets/provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class App extends StatefulWidget {

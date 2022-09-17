@@ -1,5 +1,5 @@
 import 'package:fake_async/fake_async.dart';
-import 'package:flutter_remoter/internals/cache.dart';
+import 'package:flutter_remoter/src/internals/cache.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

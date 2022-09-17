@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_remoter/internals/retry.dart';
-import 'package:flutter_remoter/internals/types.dart';
-import 'package:flutter_remoter/widgets/provider.dart';
+import 'package:flutter_remoter/src/internals/retry.dart';
+import 'package:flutter_remoter/src/internals/types.dart';
+import 'package:flutter_remoter/src/widgets/provider.dart';
 
 class RemoterMutation<T, S> extends StatefulWidget {
   /// Function to fetch data

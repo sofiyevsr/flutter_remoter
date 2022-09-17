@@ -1,5 +1,5 @@
-import 'package:flutter_remoter/internals/client.dart';
-import 'package:flutter_remoter/internals/types.dart';
+import 'package:flutter_remoter/src/internals/client.dart';
+import 'package:flutter_remoter/src/internals/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
