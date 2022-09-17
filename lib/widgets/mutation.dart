@@ -14,7 +14,7 @@ class RemoterMutation<T, S> extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     RemoterMutationData<T> snapshot,
-    RemoterMutationUtils utils,
+    RemoterMutationUtils<S> utils,
   ) builder;
 
   /// Listener function that receives updates of data
@@ -59,6 +59,8 @@ class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
           maxDelay: widget.maxDelay ?? topLevelOptions.maxDelay.value,
           maxRetries: widget.maxRetries ?? topLevelOptions.maxRetries.value,
         );
+        // State was reset, cancel
+        if (data.status != RemoterStatus.fetching) return;
         _dispatch(
           RemoterMutationData<T>(
             data: result,
@@ -66,8 +68,10 @@ class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
           ),
         );
       } catch (error) {
+        // State was reset, cancel
+        if (data.status != RemoterStatus.fetching) return;
         _dispatch(
-          RemoterMutationData(
+          RemoterMutationData<T>(
             data: null,
             status: RemoterStatus.error,
             error: error,
@@ -77,14 +81,14 @@ class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
     },
     reset: () {
       _dispatch(
-        RemoterMutationData(data: null),
+        RemoterMutationData<T>(data: null),
       );
     },
   );
 
-  void _dispatch(RemoterMutationData data) {
+  void _dispatch(RemoterMutationData<T> data) {
     setState(() {
-      data = data;
+      this.data = data;
     });
   }
 

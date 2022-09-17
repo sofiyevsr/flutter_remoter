@@ -368,4 +368,6 @@ class RemoterMutationData<T> {
     this.status = RemoterStatus.idle,
     this.error,
   });
+  @override
+  String toString() => "RemoterMutationData -> key: $status, data: $data";
 }
