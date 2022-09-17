@@ -15,6 +15,7 @@ Future<T> retryFuture<T>(
   required int maxDelay,
 
   /// Defines maximum number of retries should be made
+  /// First run doesn't count
   required int maxRetries,
 
   /// Every time [fn] fails [onFail] function will be called with current number of attempts
@@ -28,7 +29,7 @@ Future<T> retryFuture<T>(
       return await fn();
     } catch (_) {
       final cancel = await onFail?.call(attempt);
-      if (attempt >= maxRetries || cancel == true) {
+      if (attempt > maxRetries || cancel == true) {
         rethrow;
       }
     }

@@ -42,7 +42,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return RemoterProvider(
       client: RemoterClient(
-        options: RemoterClientOptions(
+        // This line defines default options for all queries
+        // You can override options in each query
+        options: RemoterOptions(
             // staleTime defines how many ms after query fetched can be refetched
             // Use infinite staleTime if you don't need queries to be refetched when new query mounts
             // 1 << 31 is max int32
@@ -57,7 +59,7 @@ class MyApp extends StatelessWidget {
             maxRetries: 3,
             // Flag that decides if query that has error status should be refetched on mount
             retryOnMount: true,
-            ),
+        ),
       ),
       child: const MaterialApp(
         home: MyHomePage(),
@@ -89,6 +91,12 @@ Used for data that has multiple pages or "infinite scroll" like experience.
           getPreviousPageParam: (pages) {
             return pages[0].previousPage;
           },
+          // Override default options defined in RemoterClient
+          // You don't have to copy the fields you don't want to override
+          // e.g Default is RemoterOptions(cacheTime: 2000, staleTime: 1000).
+          // You want to override staleTime for specific query, use RemoterOptions(staleTime: 1000).
+          // In this case cacheTime won't be overriden and will still be 2000
+          options: RemoterOptions(),
           execute: (param) async {
             // Fetch data here
           },

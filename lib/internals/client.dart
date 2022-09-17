@@ -67,8 +67,9 @@ class RemoterClient {
 
   /// Executes given function and stores result in cache as entry with [key]
   /// Also this function saves given function to use in invalidateQuery and retry APIs
-  /// Can also be used as refetch function
+  /// Triggers background refetch if query has run before and is stale now
   /// Retries query if its status is [RemoterStatus.error]
+  /// [execute] can only be omitted if this function has been called before with an [execute] function
   /// [T] expects [RemoterData] or [PaginatedRemoterData]
   Future<void> fetch<T extends BaseRemoterData, S>(String key,
       {FutureOr<S> Function(RemoterParam? pageParam)? execute,
@@ -77,6 +78,8 @@ class RemoterClient {
         T != dynamic &&
             (T == (RemoterData<S>) || T == (PaginatedRemoterData<S>)),
         "[T] should be type of either RemoterData<S> or PaginatedRemoterData<S>");
+    assert(execute != null || _functions[key] != null,
+        "Couldn't find execute function. Provide an execute function or make sure you have called fetch with an execute function before this call");
     final flatOptions = flattenOptions(this.options, options);
     final initialData = getData<T>(key);
     if (execute == null && _functions[key] == null) {

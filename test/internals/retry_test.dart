@@ -19,7 +19,7 @@ void main() {
       time.elapse(
         const Duration(seconds: 3),
       );
-      expect(count, 3);
+      expect(count, 4);
     });
   });
 
