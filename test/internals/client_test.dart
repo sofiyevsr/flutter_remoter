@@ -52,10 +52,10 @@ void main() {
         "cache",
         execute: (_) async {
           count += 1;
-          if (count == 4) return "result";
+          if (count == 2) return "result";
           throw Error();
         },
-        options: RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 3),
+        options: RemoterOptions(staleTime: 0, maxDelay: 0, maxRetries: 1),
       );
       time.elapse(const Duration(seconds: 0));
       client.dispose();
@@ -64,16 +64,6 @@ void main() {
         emitsInOrder([
           predicate<RemoterData<String>>((d) {
             expect(d.failCount, 1);
-            expect(d.status, RemoterStatus.fetching);
-            return true;
-          }),
-          predicate<RemoterData<String>>((d) {
-            expect(d.failCount, 2);
-            expect(d.status, RemoterStatus.fetching);
-            return true;
-          }),
-          predicate<RemoterData<String>>((d) {
-            expect(d.failCount, 3);
             expect(d.status, RemoterStatus.fetching);
             return true;
           }),

@@ -42,8 +42,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return RemoterProvider(
       client: RemoterClient(
-        // This line defines default options for queries
-        // You can override this options in every query
+        // This line defines default options for all queries
+        // You can override options in each query
         options: RemoterOptions(
             // staleTime defines how many ms after query fetched can be refetched
             // Use infinite staleTime if you don't need queries to be refetched when new query mounts
