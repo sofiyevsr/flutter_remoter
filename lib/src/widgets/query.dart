@@ -43,7 +43,7 @@ class RemoterQuery<T> extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     RemoterData<T> snapshot,
-    RemoterQueryUtils utils,
+    RemoterQueryUtils<RemoterData<T>> utils,
   ) builder;
 
   /// Listener function that receives updates of data

@@ -49,7 +49,7 @@ class PaginatedRemoterQuery<T> extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     PaginatedRemoterData<T> snapshot,
-    RemoterPaginatedUtils utils,
+    RemoterPaginatedUtils<PaginatedRemoterData<T>> utils,
   ) builder;
 
   /// Listener function that receives updates of data
