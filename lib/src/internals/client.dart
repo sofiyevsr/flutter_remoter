@@ -158,7 +158,10 @@ class RemoterClient {
     try {
       _dispatch(
         key,
-        initialData.copyWith(isFetchingNextPage: Nullable(true)),
+        initialData.copyWith(
+          isFetchingNextPage: Nullable(true),
+          isNextPageError: Nullable(false),
+        ),
       );
       final param = RemoterParam(value: pageParam, type: RemoterParamType.next);
       final data = await retryFuture(
@@ -238,7 +241,10 @@ class RemoterClient {
     try {
       _dispatch(
         key,
-        initialData.copyWith(isFetchingPreviousPage: Nullable(true)),
+        initialData.copyWith(
+          isFetchingPreviousPage: Nullable(true),
+          isPreviousPageError: Nullable(false),
+        ),
       );
       final param =
           RemoterParam(value: pageParam, type: RemoterParamType.previous);
