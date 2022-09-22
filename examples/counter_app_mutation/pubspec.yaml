@@ -1,0 +1,22 @@
+name: counter_app_mutation
+description: An example counter app build with RemoterMutation
+
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.18.1 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_remoter:
+    path: ../../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
