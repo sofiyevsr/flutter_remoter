@@ -119,7 +119,7 @@ class RemoterClient {
           ),
         );
       } else {
-        return _dispatch(key, initialData);
+        return;
       }
     }
     if (T == RemoterData<S>) {
