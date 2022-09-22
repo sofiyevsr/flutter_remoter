@@ -14,7 +14,7 @@ class RemoterMutation<T, S> extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     RemoterMutationData<T> snapshot,
-    RemoterMutationUtils<S> utils,
+    RemoterMutationUtils<T, S> utils,
   ) builder;
 
   /// Listener function that receives updates of data
@@ -43,14 +43,14 @@ class RemoterMutation<T, S> extends StatefulWidget {
 }
 
 class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
-  RemoterMutationData<T> data = RemoterMutationData<T>(data: null);
-  late RemoterMutationUtils<S> utils = RemoterMutationUtils<S>(
+  RemoterMutationData<T> state = RemoterMutationData<T>(data: null);
+  late RemoterMutationUtils<T, S> utils = RemoterMutationUtils<T, S>(
     mutate: (param) async {
       final topLevelOptions = RemoterProvider.of(context).client.options;
       try {
         _dispatch(
           RemoterMutationData<T>(
-            data: null,
+            data: state.data,
             status: RemoterStatus.fetching,
           ),
         );
@@ -60,7 +60,7 @@ class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
           maxRetries: widget.maxRetries ?? topLevelOptions.maxRetries.value,
         );
         // State was reset, cancel
-        if (data.status != RemoterStatus.fetching) return;
+        if (state.status != RemoterStatus.fetching) return;
         _dispatch(
           RemoterMutationData<T>(
             data: result,
@@ -69,10 +69,10 @@ class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
         );
       } catch (error) {
         // State was reset, cancel
-        if (data.status != RemoterStatus.fetching) return;
+        if (state.status != RemoterStatus.fetching) return;
         _dispatch(
           RemoterMutationData<T>(
-            data: null,
+            data: state.data,
             status: RemoterStatus.error,
             error: error,
           ),
@@ -84,14 +84,15 @@ class _RemoterMutationState<T, S> extends State<RemoterMutation<T, S>> {
         RemoterMutationData<T>(data: null),
       );
     },
+    getData: () => state,
   );
 
   void _dispatch(RemoterMutationData<T> data) {
     setState(() {
-      this.data = data;
+      state = data;
     });
   }
 
   @override
-  Widget build(BuildContext context) => widget.builder(context, data, utils);
+  Widget build(BuildContext context) => widget.builder(context, state, utils);
 }

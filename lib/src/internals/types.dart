@@ -320,11 +320,13 @@ class RemoterQueryUtils<T> {
   final FutureOr Function() retry;
   final FutureOr Function() refetch;
   final FutureOr Function(T data) setData;
+  final FutureOr<T> Function() getData;
   RemoterQueryUtils({
     required this.invalidateQuery,
     required this.retry,
     required this.setData,
     required this.refetch,
+    required this.getData,
   });
 }
 
@@ -336,6 +338,7 @@ class RemoterPaginatedUtils<T> extends RemoterQueryUtils<T> {
   RemoterPaginatedUtils({
     required this.fetchNextPage,
     required this.fetchPreviousPage,
+    required super.getData,
     required super.invalidateQuery,
     required super.retry,
     required super.setData,
@@ -344,12 +347,14 @@ class RemoterPaginatedUtils<T> extends RemoterQueryUtils<T> {
 }
 
 /// Represents class for helper methods which is passed to builder function for [RemoterMutation]
-class RemoterMutationUtils<S> {
+class RemoterMutationUtils<T, S> {
   final FutureOr Function() reset;
   final FutureOr Function(S param) mutate;
+  final RemoterMutationData<T> Function() getData;
   RemoterMutationUtils({
     required this.mutate,
     required this.reset,
+    required this.getData,
   });
 }
 

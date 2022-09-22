@@ -118,6 +118,7 @@ class _PaginatedRemoterQueryState<T> extends State<PaginatedRemoterQuery<T>> {
         widget.remoterKey,
         widget.options,
       ),
+      getData: () => data,
       setData: (data) => remoter.client
           .setData<PaginatedRemoterData<T>>(widget.remoterKey, data),
     );

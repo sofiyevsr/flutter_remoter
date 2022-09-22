@@ -90,6 +90,7 @@ class RemoterQueryState<T> extends State<RemoterQuery<T>> {
         widget.remoterKey,
         widget.options,
       ),
+      getData: () => data,
       setData: (data) =>
           remoter.client.setData<RemoterData<T>>(widget.remoterKey, data),
     );
