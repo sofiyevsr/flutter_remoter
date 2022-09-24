@@ -186,8 +186,8 @@ Used for data that has multiple pages or "infinite scroll" like experience.
 
 ### Remoter Mutation
 
-Used to simplify handling asynchronous calls
-T represents type of the value execute function returns
+Used to simplify handling asynchronous calls\
+T represents type of the value execute function returns\
 S represents type of the value passed to mutate function which will be passed to execute function as parameter
 
 > See [example](https://github.com/sofiyevsr/flutter_remoter/tree/master/examples/counter_app_mutation)
@@ -239,8 +239,8 @@ There are 2 ways to retrieve RemoterClient
 
 ## Without BuildContext
 
-To use RemoterClient without context, you can create RemoterClient in separate file.
-Then that instance should be use with RemoterProvider which wraps the App.
+To use RemoterClient without context, you can create RemoterClient in separate file.\
+Then that instance should be use with RemoterProvider which wraps the App.\
 Finally, you can import and use the instance anywhere in your app.
 
 ```dart
