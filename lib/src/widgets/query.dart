@@ -15,7 +15,7 @@ import 'package:flutter_remoter/src/widgets/provider.dart';
 ///       listener: (oldState, newState) async {
 ///         // Optional state listener
 ///       },
-///       execute: (param) async {
+///       execute: () async {
 ///         // Fetch data here
 ///       },
 ///       builder: (context, snapshot, utils) {

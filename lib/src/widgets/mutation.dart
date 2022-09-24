@@ -6,7 +6,7 @@ import 'package:flutter_remoter/src/internals/types.dart';
 import 'package:flutter_remoter/src/widgets/provider.dart';
 
 /// {@template remoter_mutation}
-/// Used for fetching remote data, revalidating it and etc.
+/// Used to simplify handling asynchronous calls
 /// [T] represents type of the value execute function returns
 /// [S] represents type of the value passed to mutate function which will be passed to execute function as parameter
 ///
