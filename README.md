@@ -27,7 +27,7 @@ Remoter aims to simplify handling asynchronous operations and revalidating them,
 
 ```yaml
 dependencies:
-  flutter_remoter: TODO
+  flutter_remoter: ^0.1.0
 ```
 
 ### Wrap your app with RemoterProvider
