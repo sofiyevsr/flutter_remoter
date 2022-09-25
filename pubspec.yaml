@@ -1,5 +1,5 @@
 name: flutter_remoter
-description: A new Flutter package project.
+description: Remoter aims to simplify handling asynchronous operations and revalidating them.
 version: 0.0.1
 
 environment:

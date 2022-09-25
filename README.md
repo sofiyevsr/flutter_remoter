@@ -71,7 +71,40 @@ class MyApp extends StatelessWidget {
 
 ## Usage
 
-There are three types of widgets: PaginatedRemoterQuery, RemoterQuery and RemoterMutation.
+There are three types of widgets: RemoterQuery, PaginatedRemoterQuery and RemoterMutation.
+
+### Remoter Query
+
+Used for 'single page' data
+
+> See [full example](https://github.com/sofiyevsr/flutter_remoter/tree/master/examples/query)
+
+```dart
+    RemoterQuery<T>(
+      remoterKey: "key",
+      listener: (oldState, newState) async {
+        // Optional state listener
+      },
+      execute: () async {
+        // Fetch data here
+      },
+      // Query won't start if this is true
+      disabled: false,
+      builder: (context, snapshot, utils) {
+        if (snapshot.status == RemoterStatus.idle) {
+          // You can skip this check if you don't use disabled parameter
+        }
+        if (snapshot.status == RemoterStatus.fetching) {
+          // Handle fetching state here
+        }
+        if (snapshot.status == RemoterStatus.error) {
+          // Handle error here
+        }
+        // It is okay to use snapshot.data! here
+        return ...
+      },
+    )
+```
 
 ### Paginated Remoter Query
 
@@ -149,4 +182,82 @@ Used for data that has multiple pages or "infinite scroll" like experience.
             );
           })
 
+```
+
+### Remoter Mutation
+
+Used to simplify handling asynchronous calls\
+T represents type of the value execute function returns\
+S represents type of the value passed to mutate function which will be passed to execute function as parameter
+
+> See [example](https://github.com/sofiyevsr/flutter_remoter/tree/master/examples/counter_app_mutation)
+
+```dart
+  RemoterMutation<T, S>(
+   execute: (param) async {
+     await Future.delayed(const Duration(seconds: 1));
+     return ...
+   },
+   builder: (context, snapshot, utils) {
+          if (snapshot.status == RemoterStatus.idle) {
+            // Mutation hasn't started yet
+          }
+          if (snapshot.status == RemoterStatus.fetching) {
+            // Handle fetching state here
+          }
+          if (snapshot.status == RemoterStatus.error) {
+            // Handle error here
+          }
+          // It is okay to use snapshot.data! here
+          return Text(
+           snapshot.data!,
+          );
+       },
+       floatingActionButton: FloatingActionButton(
+         onPressed: snapshot.status == RemoterStatus.fetching
+             ? null
+             : () {
+                 // Starts mutation
+                 // In this case null will be passed to execute as param
+                 utils.mutate(null);
+               },
+         child: const Icon(Icons.add),
+       ),
+     );
+  });
+```
+
+### Using RemoterClient
+
+There are 2 ways to retrieve RemoterClient
+
+## With BuildContext
+
+```dart
+   RemoterProvider.of(context).client
+```
+
+## Without BuildContext
+
+To use RemoterClient without context, you can create RemoterClient in separate file.\
+Then that instance should be use with RemoterProvider which wraps the App.\
+Finally, you can import and use the instance anywhere in your app.
+
+```dart
+import 'path to RemoterClient instance';
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return RemoterProvider(
+      // 'client' is the instance from import
+      client: client,
+      child: const MaterialApp(
+        home: MyHomePage(),
+      ),
+    );
+  }
+}
 ```

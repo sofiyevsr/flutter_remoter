@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/src/internals/types.dart';
 import 'package:flutter_remoter/src/widgets/provider.dart';
 
+/// {@template remoter_query}
 /// Used for fetching remote data, revalidating it and etc.
 /// If [T] generic is used, all [RemoterClient] method calls should be called with [T],
 /// otherwise runtime type casting error will be thrown
@@ -14,7 +15,7 @@ import 'package:flutter_remoter/src/widgets/provider.dart';
 ///       listener: (oldState, newState) async {
 ///         // Optional state listener
 ///       },
-///       execute: (param) async {
+///       execute: () async {
 ///         // Fetch data here
 ///       },
 ///       builder: (context, snapshot, utils) {
@@ -31,7 +32,19 @@ import 'package:flutter_remoter/src/widgets/provider.dart';
 ///         return ...
 ///       })
 ///```
+/// {@endtemplate}
 class RemoterQuery<T> extends StatefulWidget {
+  /// {@macro remoter_query}
+  const RemoterQuery({
+    super.key,
+    this.listener,
+    this.options,
+    this.disabled,
+    required this.remoterKey,
+    required this.execute,
+    required this.builder,
+  });
+
   /// Unique identifier for query
   final String remoterKey;
 
@@ -39,7 +52,6 @@ class RemoterQuery<T> extends StatefulWidget {
   final FutureOr<T> Function() execute;
 
   /// Builder method that is called if data updates
-  /// utils is collection of useful methods such as setData, refetch and etc.
   final Widget Function(
     BuildContext context,
     RemoterData<T> snapshot,
@@ -55,15 +67,6 @@ class RemoterQuery<T> extends StatefulWidget {
 
   /// Query won't start executing if [disabled] is true
   final bool? disabled;
-  const RemoterQuery({
-    super.key,
-    this.listener,
-    this.options,
-    this.disabled,
-    required this.remoterKey,
-    required this.execute,
-    required this.builder,
-  });
 
   @override
   State<RemoterQuery<T>> createState() => RemoterQueryState<T>();

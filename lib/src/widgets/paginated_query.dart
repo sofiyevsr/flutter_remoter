@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_remoter/src/internals/types.dart';
 import 'package:flutter_remoter/src/widgets/provider.dart';
 
+/// {@template remoter_paginated_query}
 /// Used for data that has multiple pages or "infinite scroll" like experience.
 /// If [T] generic is used, all [RemoterClient] method calls should be called with [T],
 /// otherwise runtime type casting error will be thrown
@@ -37,7 +38,21 @@ import 'package:flutter_remoter/src/widgets/provider.dart';
 ///         return ...
 ///       })
 ///```
+/// {@endtemplate}
 class PaginatedRemoterQuery<T> extends StatefulWidget {
+  /// {@macro remoter_paginated_query}
+  const PaginatedRemoterQuery({
+    super.key,
+    this.getPreviousPageParam,
+    this.getNextPageParam,
+    this.options,
+    this.listener,
+    this.disabled,
+    required this.remoterKey,
+    required this.execute,
+    required this.builder,
+  });
+
   /// Unique identifier for query
   final String remoterKey;
 
@@ -45,7 +60,6 @@ class PaginatedRemoterQuery<T> extends StatefulWidget {
   final FutureOr<T> Function(RemoterParam? param) execute;
 
   /// Builder method that is called if data updates
-  /// utils is collection of useful methods such as fetchNextPage, fetchPreviousPage and etc.
   final Widget Function(
     BuildContext context,
     PaginatedRemoterData<T> snapshot,
@@ -72,17 +86,6 @@ class PaginatedRemoterQuery<T> extends StatefulWidget {
 
   /// Query won't start executing if [disabled] is true
   final bool? disabled;
-  const PaginatedRemoterQuery({
-    super.key,
-    this.getPreviousPageParam,
-    this.getNextPageParam,
-    this.options,
-    this.listener,
-    this.disabled,
-    required this.remoterKey,
-    required this.execute,
-    required this.builder,
-  });
 
   @override
   State<PaginatedRemoterQuery<T>> createState() =>

@@ -6,9 +6,8 @@ import 'types.dart';
 import 'cache.dart';
 import 'utils.dart';
 
+/// {@template remoter_client}
 /// Client that processes query actions and holds cache data
-/// [options] holds global options which is used on each query
-/// see [RemoterOptions] for more details
 /// ## IMPORTANT
 /// Client methods can be used anywhere in application
 /// but generics from methods should not be omitted and should be same as the one used in widgets,
@@ -17,7 +16,14 @@ import 'utils.dart';
 /// `client.invalidateQuery<CatFacts>("cat_facts")` should be called
 /// All methods expects either T, RemoterData<T> or PaginatedRemoterData<T>,
 /// see method's doc for required generic type
+/// {@endtemplate}
 class RemoterClient {
+  /// {@macro remoter_client}
+  RemoterClient({RemoterOptions? options})
+      : options = options ?? RemoterOptions();
+
+  /// Holds global options which is used on each query unless overriden
+  /// see [RemoterOptions] for more details
   final RemoterOptions options;
 
   /// Count of listeners of each key
@@ -34,10 +40,6 @@ class RemoterClient {
 
   /// Stream that sends all entry updates
   final StreamController _cacheStream = StreamController.broadcast();
-
-  /// [options] can be overriden in each query widget
-  RemoterClient({RemoterOptions? options})
-      : options = options ?? RemoterOptions();
 
   /// Returns new [Stream] which gets cache entry if exists as first data
   /// [T] expects [RemoterData] or [PaginatedRemoterData] type
