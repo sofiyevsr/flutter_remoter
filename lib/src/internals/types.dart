@@ -153,7 +153,7 @@ class RemoterData<T> extends BaseRemoterData<T> {
     super.failCount,
   });
 
-  /// Represents data execute function returns on [RemoterStatus.success]
+  /// Represents data `execute` function returns on [RemoterStatus.success]
   final T? data;
 
   @override
@@ -417,7 +417,7 @@ class RemoterMutationUtils<T, S> {
   /// Function to reset state back to [RemoterStatus.idle] and clear data
   final FutureOr Function() reset;
 
-  /// Calls execute function with given `param`
+  /// Calls `execute` function with given `param`
   final FutureOr Function(S param) mutate;
 
   /// Get current state object of mutation

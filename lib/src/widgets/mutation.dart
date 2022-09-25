@@ -7,8 +7,8 @@ import 'package:flutter_remoter/src/widgets/provider.dart';
 
 /// {@template remoter_mutation}
 /// Used to simplify handling asynchronous calls
-/// [T] represents type of the value execute function returns
-/// [S] represents type of the value passed to mutate function which will be passed to execute function as parameter
+/// [T] represents type of the value `execute` function returns
+/// [S] represents type of the value passed to `mutate` function which will be passed to `execute` function as parameter
 ///
 /// ```dart
 ///   RemoterMutation<T, S>(
@@ -62,8 +62,7 @@ class RemoterMutation<T, S> extends StatefulWidget {
   /// Function to fetch data
   final FutureOr<T> Function(S param) execute;
 
-  /// Builder method that is called if data updates
-  /// utils is collection of useful methods such as setData, refetch and etc.
+  /// Builder method that is called when data updates
   final Widget Function(
     BuildContext context,
     RemoterMutationData<T> snapshot,
@@ -77,11 +76,11 @@ class RemoterMutation<T, S> extends StatefulWidget {
   )? listener;
 
   /// Maximum delay between retries of [execute] function in ms
-  /// If omitted falls back to maxDelay of top level [RemoterClient.options]
+  /// If omitted falls back to `maxDelay` of top level [RemoterClient.options]
   final int? maxDelay;
 
   /// Maximum number of retries running [execute] function
-  /// If omitted falls back to maxRetries of top level [RemoterClient.options]
+  /// If omitted falls back to `maxRetries` of top level [RemoterClient.options]
   final int? maxRetries;
 
   @override
