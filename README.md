@@ -77,7 +77,7 @@ There are three types of widgets: RemoterQuery, PaginatedRemoterQuery and Remote
 
 Used for 'single page' data
 
-> See [full example](https://github.com/sofiyevsr/flutter_remoter/tree/master/example/query)
+> See [full example](https://github.com/sofiyevsr/flutter_remoter/tree/master/examples/query)
 
 ```dart
     RemoterQuery<T>(
@@ -110,7 +110,7 @@ Used for 'single page' data
 
 Used for data that has multiple pages or "infinite scroll" like experience.
 
-> See [full example](https://github.com/sofiyevsr/flutter_remoter/tree/master/example/pagination)
+> See [full example](https://github.com/sofiyevsr/flutter_remoter/tree/master/examples/pagination)
 
 ```dart
     PaginatedRemoterQuery<FactsPage>(
@@ -190,7 +190,7 @@ Used to simplify handling asynchronous calls\
 T represents type of the value execute function returns\
 S represents type of the value passed to mutate function which will be passed to execute function as parameter
 
-> See [example](https://github.com/sofiyevsr/flutter_remoter/tree/master/example/counter_app_mutation)
+> See [example](https://github.com/sofiyevsr/flutter_remoter/tree/master/examples/counter_app_mutation)
 
 ```dart
   RemoterMutation<T, S>(
