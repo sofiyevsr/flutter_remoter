@@ -20,6 +20,9 @@ Remoter aims to simplify handling asynchronous operations and revalidating them,
 - Pagination
 - Invalidate query
 - Set query data manually
+- Retry query when new widget mounts
+- Auto retry with exponential backoff
+- Mutation widget
 
 ## Getting started
 
@@ -88,6 +91,12 @@ Used for 'single page' data
       execute: () async {
         // Fetch data here
       },
+      // Override default options defined in RemoterClient
+      // You don't have to copy the fields you don't want to override
+      // e.g Default is RemoterOptions(cacheTime: 2000, staleTime: 1000).
+      // You want to override staleTime for specific query, use RemoterOptions(staleTime: 1000).
+      // In this case cacheTime won't be overriden and will still be 2000
+      options: RemoterOptions(),
       // Query won't start if this is true
       disabled: false,
       builder: (context, snapshot, utils) {
