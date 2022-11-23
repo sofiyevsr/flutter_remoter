@@ -31,7 +31,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_remoter: ^0.1.1
+  flutter_remoter: ^0.2.0
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -30,7 +30,7 @@ Remoter aims to simplify handling asynchronous operations and revalidating them,
 
 ```yaml
 dependencies:
-  flutter_remoter: ^0.1.1
+  flutter_remoter: ^0.2.0
 ```
 
 ### Wrap your app with RemoterProvider

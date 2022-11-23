@@ -1,6 +1,6 @@
 name: flutter_remoter
 description: Remoter aims to simplify handling asynchronous operations and revalidating them.
-version: 0.1.1
+version: 0.2.0
 homepage: https://github.com/sofiyevsr/flutter_remoter
 repository: https://github.com/sofiyevsr/flutter_remoter
 
