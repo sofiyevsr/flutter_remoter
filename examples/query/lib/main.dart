@@ -78,6 +78,7 @@ class MyHomePage extends StatelessWidget {
               child: GridView(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
+                  mainAxisExtent: 300,
                 ),
                 children: snapshot.data!
                     .map(

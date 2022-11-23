@@ -52,8 +52,9 @@ class RemoterClient {
     }
     // Create new stream to track listener count
     final stream = _cacheStream.stream
-        .cast<T>()
-        .where((event) => event.key == key)
+        .where((event) {
+          return event.key == key;
+        })
         .transform(
           CustomStreamTransformer(
             onClose: () {
@@ -63,7 +64,8 @@ class RemoterClient {
               _increaseListenersCount(key);
             },
           ),
-        );
+        )
+        .cast<T>();
     return stream;
   }
 
