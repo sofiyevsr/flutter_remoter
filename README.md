@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://www.codacy.com/gh/sofiyevsr/flutter_remoter/dashboard"><img src="https://app.codacy.com/project/badge/Grade/b54f20951646419e83f875089eb13daa"/></a>
   <a href="https://www.codacy.com/gh/sofiyevsr/flutter_remoter/dashboard"><img src="https://app.codacy.com/project/badge/Coverage/b54f20951646419e83f875089eb13daa"/></a>
-  <a href="https://github.com/sofiyevsr/flutter_remoter/actions/workflows/flutter_remoter.yml"><img src="https://img.shields.io/github/workflow/status/sofiyevsr/flutter_remoter/Flutter%20Remoter"/></a>
+  <a href="https://github.com/sofiyevsr/flutter_remoter/actions/workflows/flutter_remoter.yml"><img src="https://img.shields.io/github/actions/workflow/status/sofiyevsr/flutter_remoter/flutter_remoter.yml"/></a>
   <a href="https://pub.dev/packages/flutter_remoter"><img src="https://img.shields.io/pub/v/flutter_remoter?logo=dart"/></a>
   <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/sofiyevsr/flutter_remoter">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
